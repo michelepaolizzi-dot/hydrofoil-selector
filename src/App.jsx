@@ -1,0 +1,1 @@
+import HydrofoilSelector from './components/HydrofoilSelector'; export default function App(){return <HydrofoilSelector/>;}
