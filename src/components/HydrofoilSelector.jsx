@@ -304,7 +304,7 @@ export default function HydrofoilSelector() {
           </section>
 
           {/* Right: source & products */}
-          <aside className="hidden">
+          <aside className="col-span-12 lg:col-span-5 space-y-4">
             <div className="bg-white rounded-2xl p-4 shadow-md">
               <div className="flex items-center justify-between">
                 <div>
