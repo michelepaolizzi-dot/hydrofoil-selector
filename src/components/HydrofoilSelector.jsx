@@ -1,170 +1,189 @@
-// VERSIONE MULTILINGUE COMPLETA — Hydrofoil Selector
-// ✔ Rilevamento automatico lingua utente
-// ✔ Dizionari IT / EN (facilmente estendibili)
-// ✔ Domande multilingue
-// ✔ Compatibile con JSON remoto di prodotti (con image_url, price, discount_code)
-// ✔ Nuova domanda iniziale "Quale sport ti interessa?"
-// ✔ Step finale: invito YouTube + email newsletter
+// =============================================================
+// PRODUCT ADVISOR APP — MODULARE + MULTILINGUA + JSON REMOTO
+// Sezioni: SUP gonfiabili, Hydrofoil, Tavole rigide Wingfoil, Pompe elettriche
+// =============================================================
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, CloudLightning, Upload } from "lucide-react";
+import { ArrowRight, RefreshCw, CloudLightning, Upload, Globe2 } from "lucide-react";
 
 // =============================================================
-// 1️⃣ MULTILINGUA — Dizionario UI
+// 1️⃣ I18N — Testi generali IT / EN
 // =============================================================
 const I18N = {
   it: {
-    title: "Hydrofoil Selector",
-    subtitle: "Quiz guidato per scegliere l’hydrofoil giusto (wing / surf / pumping).",
+    app_title: "Sport al centro — Product Selector",
+    app_subtitle:
+      "Selettore guidato per scegliere il prodotto giusto tra SUP gonfiabili, hydrofoil, tavole rigide wingfoil e pompe elettriche.",
 
-    progress: "Passo",
-    of: "di",
-    next: "Continua",
-    back: "Indietro",
+    lang_label: "Lingua",
+    category_title: "Da dove vuoi iniziare?",
+    category_subtitle: "Seleziona una categoria per avviare il quiz guidato.",
+    choose_category: "Scegli una categoria",
+    back_to_categories: "Torna alla scelta categoria",
+
+    category_sup: "SUP gonfiabili",
+    category_sup_desc: "Per passeggiate, touring e divertimento in acqua con tavole gonfiabili.",
+    category_hydrofoil: "Hydrofoil",
+    category_hydrofoil_desc: "Per wingfoil, surf e downwind con foil ad alte prestazioni.",
+    category_wingrigid: "Tavole rigide Wingfoil",
+    category_wingrigid_desc:
+      "Per chi vuole massime performance e controllo con tavole rigide dedicate al wing.",
+    category_pumps: "Pompe elettriche",
+    category_pumps_desc: "Per gonfiare rapidamente SUP e wing senza fatica.",
+
+    progress_step: "Passo",
+    progress_of: "di",
 
     results_title: "Risultati consigliati",
-    results_sub: "In base alle tue risposte, ecco i prodotti suggeriti con motivazione rapida.",
+    results_sub: "In base alle tue risposte, questi sono i prodotti che ti suggeriamo.",
+    no_results: "Non ci sono match precisi: ti mostriamo comunque alcuni prodotti interessanti.",
 
-    video_title: "Guarda il video prima dei risultati",
-    video_text: "Questo video ti aiuta a capire meglio come scegliere l’hydrofoil.",
+    restart_quiz: "Ricomincia quiz",
+    back: "Indietro",
+    next: "Continua",
 
-    price_with_coupon: "Prezzo con coupon incluso:",
-    discount_code: "Codice sconto:",
+    // JSON / data source
+    data_source: "Sorgente dati",
+    remote_json: "JSON remoto",
+    local_fallback: "Fallback locale",
+    fetch_now: "Aggiorna ora",
+    last_fetch: "Ultimo aggiornamento",
+    status_ok: "ok",
+    status_loading: "caricamento…",
+    status_error: "Errore",
 
-    restart: "Ricomincia quiz",
-    to_top: "Torna su",
-
-    data_source: "Data source",
-    url_json: "URL / JSON",
-    fetch: "Fetch",
-    upload_json: "Applica JSON",
-    cancel: "Annulla",
     products_loaded: "Prodotti caricati",
-
-    products_available: "Prodotti disponibili",
+    products_list_title: "Prodotti disponibili",
     json_hint:
-      "Suggerimento: pubblica un array JSON di prodotti con campi: id, brand, model, type, notes, recommended_for (array), front_surface_cm2, url, image_url, price, discount_code",
+      "Suggerimento: pubblica un JSON per ogni categoria e aggiorna l'URL nel modulo corrispondente.",
+    paste_json_label: "Incolla JSON prodotti per override rapido",
+    upload_json: "Applica JSON",
+    cancel_json: "Annulla",
 
-    quick_tips_title: "Suggerimenti rapidi (mapping usato dal quiz)",
-
-    // Nuova domanda iniziale
-    q_interest: "Quale sport ti interessa?",
-    q_sport: "Quale attività vuoi praticare principalmente?",
-    q_weight: "Quanto pesi?",
-    q_level: "Qual è il tuo livello?",
-    q_conditions: "In quali condizioni userai principalmente il foil?",
-    q_style: "Che stile preferisci?",
-    q_budget: "Budget indicativo?",
-
-    opt_level_beginner: "Principiante",
-    opt_level_intermediate: "Intermedio",
-    opt_level_advanced: "Avanzato",
-
-    opt_cond_flat: "Vento leggero / acqua piatta",
-    opt_cond_medium: "Vento medio",
-    opt_cond_waves: "Onde / surf",
-
-    opt_style_glide: "Cruising / Glide",
-    opt_style_carving: "Carving / Surf",
-    opt_style_pump: "Pump / Efficienza",
-
-    // Step finale
+    // Newsletter + YouTube
     final_title: "Un'ultima cosa!",
     final_text:
-      "Vuoi restare aggiornato su offerte, test e nuovi video? Iscriviti al nostro canale YouTube e lascia la tua email!",
+      "Vuoi restare aggiornato su offerte, test e nuovi video? Iscriviti al nostro canale YouTube e lascia la tua email per la newsletter.",
+    yt_button: "Vai al canale YouTube",
     email_label: "La tua email per la newsletter:",
-    email_btn: "Invia",
-    email_ok: "Grazie! Ti abbiamo registrato per la newsletter (se l’email è valida).",
-    email_error: "Inserisci un’email valida prima di inviare."
+    email_placeholder: "la-tua-email@example.com",
+    email_send: "Iscriviti alla newsletter",
+    email_ok: "Grazie! Se l'email è valida ti inseriremo nella nostra mailing list.",
+    email_error: "Per favore inserisci un’email valida.",
+
+    // Campi condivisi
+    q_weight: "Quanto pesi?",
+    opt_weight_1: "<60 kg",
+    opt_weight_2: "60-75 kg",
+    opt_weight_3: "75-90 kg",
+    opt_weight_4: ">90 kg",
+
+    q_level: "Qual è il tuo livello?",
+    opt_level_beginner: "Principiante",
+    opt_level_intermediate: "Intermedio",
+    opt_level_advanced: "Avanzato"
   },
 
   en: {
-    title: "Hydrofoil Selector",
-    subtitle: "Guided quiz to choose the right hydrofoil (wing / surf / pumping).",
+    app_title: "Sport al centro — Product Selector",
+    app_subtitle:
+      "Guided selector to find the right product among inflatable SUPs, hydrofoils, rigid wing boards and electric pumps.",
 
-    progress: "Step",
-    of: "of",
-    next: "Next",
+    lang_label: "Language",
+    category_title: "Where do you want to start?",
+    category_subtitle: "Select a category to start the guided quiz.",
+    choose_category: "Choose a category",
+    back_to_categories: "Back to category selection",
+
+    category_sup: "Inflatable SUPs",
+    category_sup_desc: "For cruising, touring and fun on the water with inflatable boards.",
+    category_hydrofoil: "Hydrofoil",
+    category_hydrofoil_desc: "For wingfoil, surf and downwind with high performance foils.",
+    category_wingrigid: "Rigid Wingfoil boards",
+    category_wingrigid_desc:
+      "For maximum performance and control with rigid boards dedicated to wing.",
+    category_pumps: "Electric pumps",
+    category_pumps_desc: "To inflate SUPs and wings quickly with no effort.",
+
+    progress_step: "Step",
+    progress_of: "of",
+
+    results_title: "Recommended products",
+    results_sub: "Based on your answers, these are the products we recommend.",
+    no_results: "No perfect matches: we still show you some interesting products.",
+
+    restart_quiz: "Restart quiz",
     back: "Back",
+    next: "Next",
 
-    results_title: "Recommended Results",
-    results_sub: "Based on your answers, here are the suggested products with quick rationale.",
-
-    video_title: "Watch the video before the results",
-    video_text: "This video will help you better understand how to choose your hydrofoil.",
-
-    price_with_coupon: "Price with coupon included:",
-    discount_code: "Discount code:",
-
-    restart: "Restart quiz",
-    to_top: "Back to top",
-
+    // JSON / data source
     data_source: "Data source",
-    url_json: "URL / JSON",
-    fetch: "Fetch",
-    upload_json: "Apply JSON",
-    cancel: "Cancel",
+    remote_json: "Remote JSON",
+    local_fallback: "Local fallback",
+    fetch_now: "Fetch now",
+    last_fetch: "Last fetch",
+    status_ok: "ok",
+    status_loading: "loading…",
+    status_error: "Error",
+
     products_loaded: "Products loaded",
-
-    products_available: "Available products",
+    products_list_title: "Available products",
     json_hint:
-      "Tip: publish a JSON array of products with fields: id, brand, model, type, notes, recommended_for (array), front_surface_cm2, url, image_url, price, discount_code",
+      "Tip: publish one JSON endpoint per category and update the URL in the corresponding module.",
+    paste_json_label: "Paste products JSON for quick override",
+    upload_json: "Apply JSON",
+    cancel_json: "Cancel",
 
-    quick_tips_title: "Quick tips (mapping used by the quiz)",
-
-    // New initial question
-    q_interest: "Which sport are you interested in?",
-    q_sport: "Which activity will you mainly practice?",
-    q_weight: "How much do you weigh?",
-    q_level: "What is your level?",
-    q_conditions: "In which conditions will you mainly use the foil?",
-    q_style: "Which style do you prefer?",
-    q_budget: "Approximate budget?",
-
-    opt_level_beginner: "Beginner",
-    opt_level_intermediate: "Intermediate",
-    opt_level_advanced: "Advanced",
-
-    opt_cond_flat: "Light wind / flat water",
-    opt_cond_medium: "Medium wind",
-    opt_cond_waves: "Waves / surf",
-
-    opt_style_glide: "Cruising / Glide",
-    opt_style_carving: "Carving / Surf",
-    opt_style_pump: "Pump / Efficiency",
-
-    // Final step
+    // Newsletter + YouTube
     final_title: "One last thing!",
     final_text:
-      "Want to stay updated on deals, tests and new videos? Subscribe to our YouTube channel and leave your email!",
+      "Want to stay updated on deals, tests and new videos? Subscribe to our YouTube channel and leave your email for the newsletter.",
+    yt_button: "Go to YouTube channel",
     email_label: "Your email for the newsletter:",
-    email_btn: "Send",
-    email_ok: "Thank you! You’ve been registered for the newsletter (if the email is valid).",
-    email_error: "Please enter a valid email before sending."
+    email_placeholder: "your-email@example.com",
+    email_send: "Subscribe to newsletter",
+    email_ok: "Thank you! If the email is valid we’ll add you to our mailing list.",
+    email_error: "Please enter a valid email.",
+
+    // Shared fields
+    q_weight: "How much do you weigh?",
+    opt_weight_1: "<60 kg",
+    opt_weight_2: "60-75 kg",
+    opt_weight_3: "75-90 kg",
+    opt_weight_4: ">90 kg",
+
+    q_level: "What is your level?",
+    opt_level_beginner: "Beginner",
+    opt_level_intermediate: "Intermediate",
+    opt_level_advanced: "Advanced"
   }
 };
 
 // =============================================================
-// 2️⃣ Domande multilingua
+// 2️⃣ MODULI DI CATEGORIA — domande + logica matching + prodotti default
 // =============================================================
-function buildQuestions(lang) {
-  const t = I18N[lang];
-  return [
+
+// Ogni modulo ha:
+// id, getLabel(t), getDescription(t), productsUrl (da personalizzare),
+// getQuestions(t), match(answers, products), defaultProducts
+
+const supModule = {
+  id: "sup",
+  getLabel: t => t.category_sup,
+  getDescription: t => t.category_sup_desc,
+  // TODO: sostituisci con il tuo endpoint reale
+  productsUrl: "https://example.com/sup.json",
+
+  getQuestions: t => [
     {
-      id: "interest",
-      q: t.q_interest,
-      opts: ["SUP", "Hydrofoil", "Pompe elettriche"]
-    },
-    {
-      id: "sport",
-      q: t.q_sport,
-      opts: ["Wing Foil", "Surf Foil", "Pumping / SUP"]
-    },
-    {
-      id: "weight",
-      q: t.q_weight,
-      opts: ["<60 kg", "60-75 kg", "75-90 kg", ">90 kg"]
+      id: "usage",
+      q: "Quale uso principale farai del SUP?",
+      q_en: "What will you mainly use the SUP for?",
+      opts: {
+        it: ["Passeggiate", "Touring", "Race"],
+        en: ["Cruising", "Touring", "Race"]
+      }
     },
     {
       id: "level",
@@ -172,179 +191,359 @@ function buildQuestions(lang) {
       opts: [t.opt_level_beginner, t.opt_level_intermediate, t.opt_level_advanced]
     },
     {
-      id: "conditions",
-      q: t.q_conditions,
-      opts: [t.opt_cond_flat, t.opt_cond_medium, t.opt_cond_waves]
+      id: "weight",
+      q: t.q_weight,
+      opts: [t.opt_weight_1, t.opt_weight_2, t.opt_weight_3, t.opt_weight_4]
+    }
+  ],
+
+  match: (answers, products) => {
+    if (!products.length) return [];
+    const usage = (answers.usage || "").toLowerCase();
+    const level = (answers.level || "").toLowerCase();
+    const weight = answers.weight || "";
+
+    return products
+      .map(p => {
+        let score = 0;
+        const tags = (p.tags || []).map(x => String(x).toLowerCase());
+
+        if (usage.includes("tour") && tags.includes("touring")) score += 2;
+        if ((usage.includes("passegg") || usage.includes("cruis")) && tags.includes("allround"))
+          score += 2;
+        if (usage.includes("race") && tags.includes("race")) score += 2;
+
+        if (level.includes("princip") || level.includes("beginner")) {
+          if (tags.includes("stable") || tags.includes("allround")) score += 1;
+        }
+
+        if (weight.includes(">90") && p.max_weight && p.max_weight >= 100) score += 1;
+
+        return { product: p, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(x => x.product);
+  },
+
+  defaultProducts: [
+    {
+      id: "sup-ray-air",
+      brand: "Fanatic",
+      model: "Ray Air",
+      tags: ["touring"],
+      max_weight: 110,
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=Fanatic+Ray+Air"
     },
     {
-      id: "style",
-      q: t.q_style,
-      opts: [t.opt_style_glide, t.opt_style_carving, t.opt_style_pump]
+      id: "sup-red-ride",
+      brand: "Red Paddle Co",
+      model: "Ride 10'6",
+      tags: ["allround", "stable"],
+      max_weight: 120,
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=Red+Ride+10'6"
+    }
+  ]
+};
+
+const hydrofoilModule = {
+  id: "hydrofoil",
+  getLabel: t => t.category_hydrofoil,
+  getDescription: t => t.category_hydrofoil_desc,
+  productsUrl: "https://example.com/hydrofoil.json",
+
+  getQuestions: t => [
+    {
+      id: "discipline",
+      q: "Quale disciplina vuoi praticare?",
+      q_en: "Which discipline do you want to practice?",
+      opts: {
+        it: ["Wingfoil", "Surf Foil", "Downwind / Pump"],
+        en: ["Wingfoil", "Surf foil", "Downwind / Pump"]
+      }
     },
     {
-      id: "budget",
-      q: t.q_budget,
-      opts: ["<800€", "800-1500€", "1500-2500€", ">2500€"]
+      id: "level",
+      q: t.q_level,
+      opts: [t.opt_level_beginner, t.opt_level_intermediate, t.opt_level_advanced]
+    },
+    {
+      id: "weight",
+      q: t.q_weight,
+      opts: [t.opt_weight_1, t.opt_weight_2, t.opt_weight_3, t.opt_weight_4]
     }
-  ];
-}
+  ],
 
-// =============================================================
-// 3️⃣ Default products (fallback se non arriva JSON remoto)
-// =============================================================
-const DEFAULT_PRODUCTS = [
-  {
-    id: "ind-barracuda",
-    brand: "Indiana",
-    model: "Barracuda",
-    type: "wing|surf",
-    notes: "High-aspect, ottima per glide e light wind/downwind.",
-    recommended_for: ["wing_lightwind", "downwind", "glide"],
-    front_surface_cm2: 1200,
-    url: "https://indiana-paddlesurf.com/",
-    image_url: "https://via.placeholder.com/300x300?text=Barracuda",
-    price: "€1.490",
-    discount_code: "SPORTALCENTRO10"
-  },
-  {
-    id: "ind-ride",
-    brand: "Indiana",
-    model: "Ride",
-    type: "allaround",
-    notes: "Entry/versatile: facile decollo, stabilità eccellente per principianti.",
-    recommended_for: ["allaround", "beginner"],
-    front_surface_cm2: 1400,
-    url: "https://indiana-paddlesurf.com/",
-    image_url: "https://via.placeholder.com/300x300?text=Ride",
-    price: "€1.190",
-    discount_code: "SPORTALCENTRO10"
-  },
-  {
-    id: "sab-leviathan",
-    brand: "Sabfoil",
-    model: "Leviathan",
-    type: "pumping|sup|downwind",
-    notes: "Grande lift e efficienza: perfetta per pumping / SUP foil.",
-    recommended_for: ["pumping", "sup", "lightwind"],
-    front_surface_cm2: 1750,
-    url: "https://sabfoil.com/",
-    image_url: "https://via.placeholder.com/300x300?text=Leviathan",
-    price: "€1.690",
-    discount_code: "SPORTALCENTRO10"
-  },
-  {
-    id: "sab-razor",
-    brand: "Sabfoil",
-    model: "Razor",
-    type: "surf",
-    notes: "Reattiva, veloce, perfetta per surf-foil e carving in onda.",
-    recommended_for: ["surf", "carving"],
-    front_surface_cm2: 775,
-    url: "https://sabfoil.com/",
-    image_url: "https://via.placeholder.com/300x300?text=Razor",
-    price: "€990",
-    discount_code: "SPORTALCENTRO10"
-  },
-  {
-    id: "sab-kraken",
-    brand: "Sabfoil",
-    model: "Kraken",
-    type: "modular",
-    notes: "Sistema modulare completo: compatibile con moltissime ali.",
-    recommended_for: ["modular", "quiver"],
-    front_surface_cm2: null,
-    url: "https://sabfoil.com/",
-    image_url: "https://via.placeholder.com/300x300?text=Kraken",
-    price: "€2.190",
-    discount_code: "SPORTALCENTRO10"
-  },
-  {
-    id: "ind-marlin",
-    brand: "Indiana",
-    model: "Marlin",
-    type: "allaround",
-    notes: "Equilibrata e versatile: ottima per progressing e freeride.",
-    recommended_for: ["allaround", "intermediate"],
-    front_surface_cm2: 1350,
-    url: "https://indiana-paddlesurf.com/",
-    image_url: "https://via.placeholder.com/300x300?text=Marlin",
-    price: "€1.390",
-    discount_code: "SPORTALCENTRO10"
-  }
-];
+  match: (answers, products) => {
+    if (!products.length) return [];
+    const discipline = (answers.discipline || "").toLowerCase();
+    const level = (answers.level || "").toLowerCase();
+    const weight = answers.weight || "";
 
-// =============================================================
-// 4️⃣ Component
-// =============================================================
-export default function HydrofoilSelector() {
-  // Rilevamento lingua in modo sicuro (anche in ambienti non browser)
-  const [lang] = useState(() => {
-    if (typeof navigator !== "undefined" && navigator.language) {
-      const base = navigator.language.split("-")[0];
-      return I18N[base] ? base : "en";
+    const flags = [];
+    if (discipline.includes("wing")) flags.push("wing");
+    if (discipline.includes("surf")) flags.push("surf");
+    if (discipline.includes("downwind") || discipline.includes("pump")) flags.push("downwind");
+
+    return products
+      .map(p => {
+        let score = 0;
+        const tags = (p.tags || []).map(x => String(x).toLowerCase());
+
+        if (flags.some(f => tags.includes(f))) score += 2;
+
+        if (level.includes("princip") || level.includes("beginner")) {
+          if (tags.includes("beginner") || tags.includes("easy")) score += 1;
+        }
+
+        if (weight.includes(">90") && p.lift && p.lift === "high") score += 1;
+
+        return { product: p, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(x => x.product);
+  },
+
+  defaultProducts: [
+    {
+      id: "foil-leviathan",
+      brand: "Sabfoil",
+      model: "Leviathan 1750",
+      tags: ["downwind", "pump", "high_lift"],
+      lift: "high",
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=Leviathan+1750"
+    },
+    {
+      id: "foil-barracuda",
+      brand: "Indiana",
+      model: "Barracuda",
+      tags: ["wing", "glide"],
+      lift: "medium",
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=Barracuda"
     }
-    return "en";
-  });
-  const t = I18N[lang];
+  ]
+};
 
+const wingRigidModule = {
+  id: "wingrigid",
+  getLabel: t => t.category_wingrigid,
+  getDescription: t => t.category_wingrigid_desc,
+  productsUrl: "https://example.com/wingrigid.json",
+
+  getQuestions: t => [
+    {
+      id: "volume",
+      q: "Che volume stai cercando?",
+      q_en: "Which volume range are you looking for?",
+      opts: {
+        it: ["<70 L", "70-90 L", ">90 L"],
+        en: ["<70 L", "70-90 L", ">90 L"]
+      }
+    },
+    {
+      id: "program",
+      q: "Che programma preferisci?",
+      q_en: "Which program do you prefer?",
+      opts: {
+        it: ["Freeride", "Freestyle", "Wave"],
+        en: ["Freeride", "Freestyle", "Wave"]
+      }
+    }
+  ],
+
+  match: (answers, products) => {
+    if (!products.length) return [];
+    const volume = answers.volume || "";
+    const program = (answers.program || "").toLowerCase();
+
+    return products
+      .map(p => {
+        let score = 0;
+
+        if (p.volume_range === volume) score += 2;
+        if (p.program && p.program.toLowerCase().includes(program)) score += 2;
+
+        return { product: p, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(x => x.product);
+  },
+
+  defaultProducts: [
+    {
+      id: "wing-kt-drifter",
+      brand: "KT",
+      model: "Drifter",
+      volume_range: "70-90 L",
+      program: "Freeride",
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=KT+Drifter"
+    },
+    {
+      id: "wing-ak-compact",
+      brand: "AK",
+      model: "Compact",
+      volume_range: "<70 L",
+      program: "Freestyle",
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=AK+Compact"
+    }
+  ]
+};
+
+const pumpsModule = {
+  id: "pumps",
+  getLabel: t => t.category_pumps,
+  getDescription: t => t.category_pumps_desc,
+  productsUrl: "https://example.com/pumps.json",
+
+  getQuestions: t => [
+    {
+      id: "use",
+      q: "Cosa vuoi gonfiare principalmente?",
+      q_en: "What do you mainly want to inflate?",
+      opts: {
+        it: ["SUP gonfiabile", "Wing / Kite", "Entrambi"],
+        en: ["Inflatable SUP", "Wing / Kite", "Both"]
+      }
+    },
+    {
+      id: "portability",
+      q: "Quanto è importante la portabilità?",
+      q_en: "How important is portability?",
+      opts: {
+        it: ["Molto importante", "Non mi interessa molto"],
+        en: ["Very important", "Not that important"]
+      }
+    }
+  ],
+
+  match: (answers, products) => {
+    if (!products.length) return [];
+    const use = (answers.use || "").toLowerCase();
+    const portability = (answers.portability || "").toLowerCase();
+
+    return products
+      .map(p => {
+        let score = 0;
+        const tags = (p.tags || []).map(x => String(x).toLowerCase());
+
+        if ((use.includes("sup") || use.includes("inflatable")) && tags.includes("sup"))
+          score += 2;
+        if ((use.includes("wing") || use.includes("kite")) && tags.includes("wing")) score += 2;
+        if (use.includes("entrambi") || use.includes("both")) score += 2;
+
+        if (portability.includes("molto") || portability.includes("very")) {
+          if (tags.includes("compact") || tags.includes("battery")) score += 1;
+        }
+
+        return { product: p, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(x => x.product);
+  },
+
+  defaultProducts: [
+    {
+      id: "pump-1",
+      brand: "OutdoorMaster",
+      model: "Shark II",
+      tags: ["sup"],
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=Shark+II"
+    },
+    {
+      id: "pump-2",
+      brand: "Fanatic",
+      model: "Power Pump",
+      tags: ["sup", "wing", "compact"],
+      url: "#",
+      image_url: "https://via.placeholder.com/300x300?text=Power+Pump"
+    }
+  ]
+};
+
+const MODULES = [supModule, hydrofoilModule, wingRigidModule, pumpsModule];
+
+// =============================================================
+// 3️⃣ QUIZ ENGINE PER MODULO
+// =============================================================
+function QuizEngine({
+  module,
+  lang,
+  t,
+  onBackToCategories
+}) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
-
-  const [sourceUrl, setSourceUrl] = useState("");
-  const [pollingMs, setPollingMs] = useState(15000);
-  const pollingRef = useRef(null);
-  const [lastFetched, setLastFetched] = useState(null);
+  const [products, setProducts] = useState(module.defaultProducts || []);
   const [sourceError, setSourceError] = useState(null);
   const [loadingSource, setLoadingSource] = useState(false);
+  const [lastFetched, setLastFetched] = useState(null);
   const [pasteJson, setPasteJson] = useState("");
-
   const [email, setEmail] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
 
-  const questions = buildQuestions(lang);
-  // domande + video + risultati + finale
-  const TOTAL_STEPS = questions.length + 3;
+  const questions = module.getQuestions(t).map(q => {
+    // Adatta testo per lingua se definito separatemente
+    const text =
+      lang === "en" && q.q_en
+        ? q.q_en
+        : q.q;
+    const opts =
+      q.opts && Array.isArray(q.opts)
+        ? q.opts
+        : q.opts && q.opts[lang]
+        ? q.opts[lang]
+        : [];
+    return { ...q, text, opts };
+  });
 
-  // ------------------------------
-  // Polling data source
-  // ------------------------------
+  const TOTAL_STEPS = questions.length + 2; // domande + risultati + finale
+
+  // Fetch prodotti da JSON remoto per il modulo
   useEffect(() => {
-    if (pollingRef.current) clearInterval(pollingRef.current);
-    if (sourceUrl) {
-      fetchSource();
-      pollingRef.current = setInterval(fetchSource, pollingMs);
-    }
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceUrl, pollingMs]);
+    let abort = false;
 
-  async function fetchSource() {
-    if (!sourceUrl) return;
-    setLoadingSource(true);
-    setSourceError(null);
-    try {
-      const res = await fetch(sourceUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setProducts(data);
-        setLastFetched(new Date().toISOString());
-      } else {
-        throw new Error("Formato JSON inatteso: atteso array di prodotti");
+    async function fetchProducts() {
+      if (!module.productsUrl) {
+        setProducts(module.defaultProducts || []);
+        return;
       }
-    } catch (err) {
-      setSourceError(String(err));
-    } finally {
-      setLoadingSource(false);
+      setLoadingSource(true);
+      setSourceError(null);
+      try {
+        const res = await fetch(module.productsUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("JSON non è un array di prodotti");
+        if (!abort) {
+          setProducts(data);
+          setLastFetched(new Date().toISOString());
+        }
+      } catch (err) {
+        if (!abort) {
+          setSourceError(String(err));
+          setProducts(module.defaultProducts || []);
+        }
+      } finally {
+        if (!abort) setLoadingSource(false);
+      }
     }
-  }
 
-  // ------------------------------
-  // Gestione risposte
-  // ------------------------------
+    fetchProducts();
+    return () => {
+      abort = true;
+    };
+  }, [module]);
+
   function answer(id, value) {
     setAnswers(prev => ({ ...prev, [id]: value }));
     setStep(prev => prev + 1);
@@ -354,71 +553,16 @@ export default function HydrofoilSelector() {
     setStep(prev => Math.max(prev - 1, 0));
   }
 
-  function reset() {
+  function resetModule() {
     setStep(0);
     setAnswers({});
     setEmail("");
     setEmailMessage("");
   }
 
-  // ------------------------------
-  // Matching prodotti (come prima, con piccolo extra su "interest")
-// ------------------------------
-  function matchProducts() {
-    if (!products.length) return [];
+  const suggestions = step >= questions.length ? module.match(answers, products) : [];
 
-    const tokens = [];
-    const s = (answers.sport || "").toLowerCase();
-    if (s.includes("wing")) tokens.push("wing", "lightwind");
-    if (s.includes("surf")) tokens.push("surf");
-    if (s.includes("pumping") || s.includes("sup")) tokens.push("pumping", "sup");
-
-    const interest = (answers.interest || "").toLowerCase();
-    if (interest.includes("sup")) tokens.push("sup");
-    if (interest.includes("pompe")) tokens.push("pump");
-    if (interest.includes("hydrofoil")) tokens.push("wing", "surf");
-
-    const style = (answers.style || "").toLowerCase();
-    if (style.includes("glide")) tokens.push("glide", "downwind");
-    if (style.includes("carv")) tokens.push("carving");
-    if (style.includes("pump")) tokens.push("pumping");
-
-    const level = (answers.level || "").toLowerCase();
-    if (level.includes("princip") || level.includes("beginner")) tokens.push("beginner");
-    if (level.includes("inter")) tokens.push("intermediate");
-
-    const cond = (answers.conditions || "").toLowerCase();
-    if (cond.includes("leggero") || cond.includes("light wind")) tokens.push("lightwind");
-    if (cond.includes("onde") || cond.includes("wave")) tokens.push("surf");
-
-    const weight = answers.weight || "";
-    if (weight.includes("<60")) tokens.push("light");
-    if (weight.includes("60-75")) tokens.push("medium");
-    if (weight.includes("75-90")) tokens.push("heavy");
-    if (weight.includes(">90")) tokens.push("veryheavy");
-
-    const scored = products.map(p => {
-      let score = 0;
-      const rec = (p.recommended_for || []).map(x => String(x).toLowerCase());
-      tokens.forEach(tk => {
-        if (rec.includes(tk)) score += 2;
-        if ((p.type || "").toLowerCase().includes(tk)) score += 1;
-      });
-      if (rec.includes("allaround") && tokens.includes("beginner")) score += 1;
-      return { product: p, score };
-    });
-
-    scored.sort((a, b) => b.score - a.score);
-    const top = scored.filter(s => s.score > 0).slice(0, 3).map(s => s.product);
-    if (top.length === 0) return products.slice(0, 2);
-    return top;
-  }
-
-  const suggestions = step > questions.length ? matchProducts() : [];
-
-  // ------------------------------
-  // JSON da textarea
-  // ------------------------------
+  // Applica JSON incollato
   function applyPastedJson() {
     try {
       const data = JSON.parse(pasteJson);
@@ -432,375 +576,404 @@ export default function HydrofoilSelector() {
     }
   }
 
-  // ------------------------------
-  // Email submit (solo frontend)
-// ------------------------------
   function handleEmailSubmit() {
     if (!email || !email.includes("@")) {
       setEmailMessage(t.email_error);
       return;
     }
-    // Qui potresti chiamare una API per salvare la mail
+    // Qui potresti chiamare una API backend
     setEmailMessage(t.email_ok);
   }
 
-  // =============================================================
   // RENDER
-  // =============================================================
+  return (
+    <div className="grid grid-cols-12 gap-6">
+      {/* LEFT: quiz */}
+      <section className="col-span-12 lg:col-span-7 bg-white rounded-2xl p-6 shadow-md">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="text-xs text-slate-500">
+              {t.progress_step} {Math.min(step + 1, TOTAL_STEPS)} {t.progress_of} {TOTAL_STEPS}
+            </div>
+            <div className="text-sm text-slate-400 mt-1">
+              {module.getLabel(t)}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <button
+              onClick={onBackToCategories}
+              className="px-3 py-1 rounded-full border bg-slate-50"
+            >
+              {t.back_to_categories}
+            </button>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-6">
+          <div
+            className="h-full bg-sky-500 transition-all"
+            style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
+          />
+        </div>
+
+        <div className="mt-4">
+          {/* STEP DOMANDE */}
+          {step < questions.length ? (
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              {(() => {
+                const current = questions[step];
+                return (
+                  <>
+                    <h2 className="text-lg font-semibold">{current.text}</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                      {current.opts.map(opt => (
+                        <button
+                          key={opt}
+                          onClick={() => answer(current.id, opt)}
+                          className="text-left p-3 rounded-lg border hover:shadow-sm hover:scale-[1.01] transition-transform bg-gradient-to-br from-white to-slate-50"
+                        >
+                          <div className="font-medium">{opt}</div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            Seleziona per procedere
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between mt-6">
+                      <button
+                        onClick={back}
+                        disabled={step === 0}
+                        className="px-3 py-2 rounded-md text-sm bg-slate-100 disabled:opacity-50"
+                      >
+                        {t.back}
+                      </button>
+                      <div className="text-xs text-slate-400">
+                        Risposte: {Object.keys(answers).length}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </motion.div>
+          ) : step === questions.length ? (
+            // STEP RISULTATI
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+              <h2 className="text-xl font-semibold">{t.results_title}</h2>
+              <p className="text-sm text-slate-600">{t.results_sub}</p>
+
+              <div className="grid grid-cols-1 gap-4 mt-4">
+                {(suggestions.length ? suggestions : products.slice(0, 3)).map(p => (
+                  <article
+                    key={p.id}
+                    className="p-4 rounded-lg border bg-gradient-to-br from-white to-slate-50"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                        {p.image_url ? (
+                          <img
+                            src={p.image_url}
+                            alt={p.model || p.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                            No image
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-bold">
+                          {p.brand} {p.model || p.name}
+                        </div>
+                        {p.notes && (
+                          <div className="text-sm text-slate-500 mt-1">{p.notes}</div>
+                        )}
+                        <div className="text-xs text-slate-400 mt-2">
+                          {p.tags && p.tags.length ? `Tags: ${p.tags.join(", ")}` : null}
+                        </div>
+                        {p.price && (
+                          <div className="text-sm text-emerald-600 font-semibold mt-1">
+                            {p.price}
+                          </div>
+                        )}
+                        {p.discount_code && (
+                          <div className="mt-2 px-2 py-1 bg-yellow-200 text-yellow-900 rounded-md text-sm font-semibold">
+                            Coupon: {p.discount_code}
+                          </div>
+                        )}
+                        {p.url && (
+                          <a
+                            className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sky-600"
+                            href={p.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Vedi scheda <ArrowRight size={14} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {!suggestions.length && (
+                <p className="mt-2 text-xs text-amber-600">{t.no_results}</p>
+              )}
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  onClick={resetModule}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm"
+                >
+                  {t.restart_quiz}
+                </button>
+                <button
+                  onClick={() => setStep(prev => prev + 1)}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm flex items-center gap-2"
+                >
+                  {t.next} <ArrowRight size={14} />
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            // STEP FINALE — YOUTUBE + EMAIL
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+              <h2 className="text-xl font-semibold">{t.final_title}</h2>
+              <p className="text-sm text-slate-600">{t.final_text}</p>
+
+              <a
+                href="https://www.youtube.com/sportalcentro"
+                target="_blank"
+                rel="noreferrer"
+                className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:opacity-90"
+              >
+                {t.yt_button} — www.youtube.com/sportalcentro
+              </a>
+
+              <div className="mt-4">
+                <label className="text-sm font-medium">{t.email_label}</label>
+                <input
+                  type="email"
+                  placeholder={t.email_placeholder}
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full mt-2 px-3 py-2 border rounded-lg text-sm"
+                />
+                <button
+                  onClick={handleEmailSubmit}
+                  className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg w-full text-sm font-medium"
+                >
+                  {t.email_send}
+                </button>
+                {emailMessage && (
+                  <p className="mt-2 text-xs text-slate-600">{emailMessage}</p>
+                )}
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  onClick={resetModule}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm"
+                >
+                  {t.restart_quiz}
+                </button>
+                <button
+                  onClick={onBackToCategories}
+                  className="px-4 py-2 bg-white border text-slate-700 rounded-lg text-sm"
+                >
+                  {t.back_to_categories}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* RIGHT: data source & lista prodotti */}
+      <aside className="col-span-12 lg:col-span-5 space-y-4">
+        <div className="bg-white rounded-2xl p-4 shadow-md">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="text-xs text-slate-500">{t.data_source}</div>
+              <div className="text-sm font-medium">
+                {module.productsUrl ? t.remote_json : t.local_fallback}
+              </div>
+            </div>
+            <div className="text-xs text-slate-400 text-right">
+              <div>
+                {t.last_fetch}: {lastFetched ? lastFetched : "—"}
+              </div>
+              <div className="text-amber-600">
+                {sourceError
+                  ? `${t.status_error}: ${sourceError}`
+                  : loadingSource
+                  ? t.status_loading
+                  : t.status_ok}
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mb-2">{t.json_hint}</p>
+          <textarea
+            value={pasteJson}
+            onChange={e => setPasteJson(e.target.value)}
+            rows={4}
+            className="w-full mt-1 p-2 border rounded-md text-xs"
+            placeholder='[ { "id": "x", "brand": "Brand", "model": "Model", "tags": ["allround"] } ]'
+          />
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={applyPastedJson}
+              className="px-3 py-2 rounded-lg bg-emerald-600 text-white flex items-center gap-2 text-xs"
+            >
+              <Upload size={14} />
+              {t.upload_json}
+            </button>
+            <button
+              onClick={() => {
+                setPasteJson("");
+                setSourceError(null);
+                setProducts(module.defaultProducts || []);
+              }}
+              className="px-3 py-2 rounded-lg border text-xs"
+            >
+              {t.cancel_json}
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-md">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium">{t.products_list_title}</div>
+            <div className="text-xs text-slate-400">
+              {t.products_loaded}: {products.length}
+            </div>
+          </div>
+          <div className="mt-2 grid grid-cols-1 gap-3 max-h-64 overflow-auto">
+            {products.map(p => (
+              <div key={p.id} className="p-3 border rounded-lg bg-slate-50">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-sm">
+                      {p.brand} {p.model || p.name}
+                    </div>
+                    {p.notes && (
+                      <div className="text-xs text-slate-500">{p.notes}</div>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-400 text-right">
+                    {p.tags && p.tags.length ? p.tags.join(", ") : ""}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+// =============================================================
+// 4️⃣ COMPONENTE PRINCIPALE — Layout del sito + scelta categoria
+// =============================================================
+export default function ProductAdvisorApp() {
+  const [lang, setLang] = useState(() => {
+    if (typeof navigator !== "undefined" && navigator.language) {
+      const base = navigator.language.split("-")[0];
+      return I18N[base] ? base : "it";
+    }
+    return "it";
+  });
+
+  const t = I18N[lang];
+  const [activeModuleId, setActiveModuleId] = useState(null);
+
+  const activeModule = MODULES.find(m => m.id === activeModuleId) || null;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 p-6 flex flex-col items-center">
-      <div className="w-full max-w-5xl">
-        {/* HEADER */}
-        <header className="flex items-center justify-between mb-6">
+      <div className="w-full max-w-6xl">
+        {/* HEADER SITO */}
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold leading-tight">{t.title}</h1>
-            <p className="text-sm text-slate-600 mt-1">{t.subtitle}</p>
+            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
+              {t.app_title}
+            </h1>
+            <p className="text-sm md:text-base text-slate-600 mt-2">
+              {t.app_subtitle}
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="flex items-center gap-2 bg-white/80 backdrop-blur px-3 py-2 rounded-2xl shadow"
-              onClick={fetchSource}
-              title="Aggiorna ora dalla source URL"
-            >
-              <RefreshCw size={16} />
-              <span className="text-xs">{t.fetch}</span>
-            </button>
-            <div className="text-right text-xs text-slate-500">
-              <div>Last: {lastFetched || "mai"}</div>
-              <div className="text-amber-600">
-                {sourceError ? `Errore: ${sourceError}` : loadingSource ? "fetching..." : "ok"}
-              </div>
+          <div className="flex items-center gap-3 self-start md:self-auto">
+            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow-sm">
+              <Globe2 size={16} className="text-slate-500" />
+              <span className="text-xs text-slate-500">{t.lang_label}</span>
+              <select
+                value={lang}
+                onChange={e => setLang(e.target.value)}
+                className="text-xs bg-transparent outline-none"
+              >
+                <option value="it">Italiano</option>
+                <option value="en">English</option>
+              </select>
             </div>
           </div>
         </header>
 
-        <main className="grid grid-cols-12 gap-6">
-          {/* LEFT: quiz + video + risultati + finale */}
-          <section className="col-span-12 lg:col-span-7 bg-white rounded-2xl p-6 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <div className="text-xs text-slate-500">{t.progress}</div>
-                <div className="text-sm font-medium">
-                  {t.progress} {Math.min(step + 1, TOTAL_STEPS)} {t.of} {TOTAL_STEPS}
-                </div>
-              </div>
-              <div className="text-xs text-slate-400">
-                {t.products_loaded}: {products.length}
-              </div>
+        {/* MAIN */}
+        {!activeModule ? (
+          <main>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold">{t.category_title}</h2>
+              <p className="text-sm text-slate-600 mt-1">{t.category_subtitle}</p>
             </div>
 
-            <div className="mt-4">
-              {/* STEP: DOMANDE */}
-              {step < questions.length ? (
-                <motion.div
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {MODULES.map(mod => (
+                <motion.button
+                  key={mod.id}
+                  onClick={() => setActiveModuleId(mod.id)}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="space-y-4"
+                  whileHover={{ scale: 1.02 }}
+                  className="text-left p-4 rounded-2xl bg-white shadow-md border border-slate-100 hover:border-sky-300 cursor-pointer flex flex-col justify-between"
                 >
-                  {(() => {
-                    const current = questions[step];
-                    return (
-                      <>
-                        <h2 className="text-lg font-semibold">{current.q}</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                          {current.opts.map(opt => (
-                            <button
-                              key={opt}
-                              onClick={() => answer(current.id, opt)}
-                              className="text-left p-3 rounded-lg border hover:shadow-sm hover:scale-[1.01] transition-transform bg-gradient-to-br from-white to-slate-50"
-                            >
-                              <div className="font-medium">{opt}</div>
-                              <div className="text-xs text-slate-500 mt-1">
-                                Seleziona per procedere
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                        <div className="flex items-center justify-between mt-6">
-                          <button
-                            onClick={back}
-                            disabled={step === 0}
-                            className="px-3 py-2 rounded-md text-sm bg-slate-100 disabled:opacity-50"
-                          >
-                            {t.back}
-                          </button>
-                          <div className="text-xs text-slate-400">
-                            Risposte salvate: {Object.keys(answers).length}
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </motion.div>
-              ) : step === questions.length ? (
-                // STEP: VIDEO
-                <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-4"
-                >
-                  <h2 className="text-xl font-semibold">{t.video_title}</h2>
-                  <p className="text-sm text-slate-600">{t.video_text}</p>
-                  <div className="aspect-video w-full overflow-hidden rounded-xl border bg-black">
-                    <iframe
-                      className="w-full h-full"
-                      src="https://www.youtube.com/embed/g5C-IeVy2e4"
-                      title="Video YouTube - Hydrofoil"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <button
-                      onClick={back}
-                      className="px-3 py-2 rounded-md text-sm bg-slate-100"
-                    >
-                      {t.back}
-                    </button>
-                    <button
-                      onClick={() => setStep(prev => prev + 1)}
-                      className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm flex items-center gap-2"
-                    >
-                      {t.next} <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </motion.div>
-              ) : step === questions.length + 1 ? (
-                // STEP: RISULTATI
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                  <h2 className="text-xl font-semibold">{t.results_title}</h2>
-                  <p className="text-sm text-slate-600">{t.results_sub}</p>
-
-                  <div className="grid grid-cols-1 gap-4 mt-4">
-                    {suggestions.map(p => (
-                      <article
-                        key={p.id}
-                        className="p-4 rounded-lg border bg-gradient-to-br from-white to-slate-50"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
-                            {p.image_url ? (
-                              <img
-                                src={p.image_url}
-                                alt={p.model}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
-                                No image
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-bold">
-                              {p.brand} {p.model}
-                            </div>
-                            <div className="text-sm text-slate-500 mt-1">{p.notes}</div>
-                            <div className="text-xs text-slate-400 mt-2">
-                              Surface: {p.front_surface_cm2 || "—"} cm²
-                            </div>
-                            {p.price && (
-                              <div className="text-sm text-emerald-600 font-semibold mt-1">
-                                {t.price_with_coupon} {p.price}
-                              </div>
-                            )}
-                            {p.discount_code && (
-                              <div className="mt-2 px-2 py-1 bg-yellow-200 text-yellow-900 rounded-md text-sm font-semibold">
-                                {t.discount_code} {p.discount_code}
-                              </div>
-                            )}
-                            <a
-                              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sky-600"
-                              href={p.url}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Vedi scheda <ArrowRight size={14} />
-                            </a>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <button
-                      onClick={reset}
-                      className="px-4 py-2 bg-sky-600 text-white rounded-lg"
-                    >
-                      {t.restart}
-                    </button>
-                    <button
-                      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                      className="px-4 py-2 bg-white border rounded-lg"
-                    >
-                      {t.to_top}
-                    </button>
-                    <button
-                      onClick={() => setStep(prev => prev + 1)}
-                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg"
-                    >
-                      {t.next}
-                    </button>
-                  </div>
-                </motion.div>
-              ) : (
-                // STEP FINALE — ISCRIZIONE YT + EMAIL
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                  <h2 className="text-xl font-semibold">{t.final_title}</h2>
-                  <p className="text-sm text-slate-600">{t.final_text}</p>
-
-                  <a
-                    href="https://www.youtube.com/sportalcentro"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:opacity-90"
-                  >
-                    www.youtube.com/sportalcentro
-                  </a>
-
-                  <div className="mt-4">
-                    <label className="text-sm font-medium">{t.email_label}</label>
-                    <input
-                      type="email"
-                      placeholder="la-tua-email@example.com"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      className="w-full mt-2 px-3 py-2 border rounded-lg text-sm"
-                    />
-                    <button
-                      onClick={handleEmailSubmit}
-                      className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg w-full text-sm font-medium"
-                    >
-                      {t.email_btn}
-                    </button>
-                    {emailMessage && (
-                      <p className="mt-2 text-xs text-slate-600">{emailMessage}</p>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={reset}
-                    className="mt-6 px-4 py-2 bg-slate-200 rounded-lg w-full text-sm"
-                  >
-                    {t.restart}
-                  </button>
-                </motion.div>
-              )}
-            </div>
-          </section>
-
-          {/* RIGHT: data source & prodotti */}
-          <aside className="col-span-12 lg:col-span-5 space-y-4">
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-slate-500">{t.data_source}</div>
-                  <div className="font-medium">{t.url_json}</div>
-                </div>
-                <div className="text-xs text-slate-400">AutoPoll: {pollingMs / 1000}s</div>
-              </div>
-
-              <div className="mt-3 grid grid-cols-1 gap-2">
-                <input
-                  value={sourceUrl}
-                  onChange={e => setSourceUrl(e.target.value)}
-                  placeholder="https://example.com/foils.json"
-                  className="w-full px-3 py-2 border rounded-lg text-sm"
-                />
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    value={pollingMs}
-                    onChange={e => setPollingMs(Number(e.target.value) || 1000)}
-                    className="w-32 px-3 py-2 border rounded-lg text-sm"
-                  />
-                  <button
-                    onClick={fetchSource}
-                    className="px-3 py-2 rounded-lg bg-sky-600 text-white flex items-center gap-2"
-                  >
-                    <CloudLightning size={16} />
-                    {t.fetch}
-                  </button>
-                </div>
-                <div className="text-xs text-slate-400">{t.json_hint}</div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-4 shadow-md">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">{t.products_available}</div>
-                <div className="text-xs text-slate-400">{products.length} items</div>
-              </div>
-
-              <div className="mt-3 grid grid-cols-1 gap-3 max-h-64 overflow-auto">
-                {products.map(p => (
-                  <div key={p.id} className="p-3 border rounded-lg bg-slate-50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-semibold">
-                          {p.brand} {p.model}
-                        </div>
-                        <div className="text-xs text-slate-500">{p.notes}</div>
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        {p.front_surface_cm2 || "—"} cm²
-                      </div>
+                  <div>
+                    <div className="text-sm font-semibold mb-1">
+                      {mod.getLabel(t)}
+                    </div>
+                    <div className="text-xs text-slate-600">
+                      {mod.getDescription(t)}
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="mt-3">
-                <label className="block text-xs text-slate-500">
-                  Incolla qui il JSON dei prodotti (preview rapida)
-                </label>
-                <textarea
-                  value={pasteJson}
-                  onChange={e => setPasteJson(e.target.value)}
-                  rows={6}
-                  className="w-full mt-2 p-2 border rounded-md text-sm"
-                  placeholder='[ { "id": "x", "brand": "Sabfoil", "model": "X" } ]'
-                />
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={applyPastedJson}
-                    className="px-3 py-2 rounded-lg bg-emerald-600 text-white flex items-center gap-2"
-                  >
-                    <Upload size={14} />
-                    {t.upload_json}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setPasteJson("");
-                      setSourceError(null);
-                    }}
-                    className="px-3 py-2 rounded-lg border"
-                  >
-                    {t.cancel}
-                  </button>
-                </div>
-              </div>
+                  <div className="mt-3 text-[11px] text-sky-600 font-medium inline-flex items-center gap-1">
+                    {t.choose_category} <ArrowRight size={12} />
+                  </div>
+                </motion.button>
+              ))}
             </div>
+          </main>
+        ) : (
+          <main>
+            <QuizEngine
+              module={activeModule}
+              lang={lang}
+              t={t}
+              onBackToCategories={() => setActiveModuleId(null)}
+            />
+          </main>
+        )}
 
-            <div className="bg-white rounded-2xl p-4 shadow-md text-sm text-slate-600">
-              <div className="font-medium mb-2">{t.quick_tips_title}</div>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>
-                  Wing/lightwind → prodotti con high-aspect, grandi superfici (es. Barracuda,
-                  Leviathan)
-                </li>
-                <li>Beginner / all-around → ali "Ride" o modelli polivalenti</li>
-                <li>Surf / carving → Razor / ali a basso volume e alta reattività</li>
-                <li>Vuoi cambiare spesso disciplina → opta per sistema modulare (Kraken)</li>
-              </ul>
-            </div>
-          </aside>
-        </main>
-
-        <footer className="mt-8 text-xs text-slate-500 text-center">
-          Progettato per "Sport al centro" — modifica il JSON di prodotto per aggiornare i suggerimenti
-          in tempo reale.
+        {/* FOOTER */}
+        <footer className="mt-10 text-xs text-slate-500 text-center">
+          Progettato per <strong>Sport al centro</strong> — integra questo componente
+          nella tua pagina esistente per offrire consigli dinamici in base alla categoria scelta.
         </footer>
       </div>
     </div>
