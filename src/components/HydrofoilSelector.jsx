@@ -3,6 +3,8 @@
 // ✔ Dizionari IT / EN (facilmente estendibili)
 // ✔ Domande multilingue
 // ✔ Compatibile con JSON remoto di prodotti (con image_url, price, discount_code)
+// ✔ Nuova domanda iniziale "Quale sport ti interessa?"
+// ✔ Step finale: invito YouTube + email newsletter
 
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
@@ -46,6 +48,8 @@ const I18N = {
 
     quick_tips_title: "Suggerimenti rapidi (mapping usato dal quiz)",
 
+    // Nuova domanda iniziale
+    q_interest: "Quale sport ti interessa?",
     q_sport: "Quale attività vuoi praticare principalmente?",
     q_weight: "Quanto pesi?",
     q_level: "Qual è il tuo livello?",
@@ -63,7 +67,16 @@ const I18N = {
 
     opt_style_glide: "Cruising / Glide",
     opt_style_carving: "Carving / Surf",
-    opt_style_pump: "Pump / Efficienza"
+    opt_style_pump: "Pump / Efficienza",
+
+    // Step finale
+    final_title: "Un'ultima cosa!",
+    final_text:
+      "Vuoi restare aggiornato su offerte, test e nuovi video? Iscriviti al nostro canale YouTube e lascia la tua email!",
+    email_label: "La tua email per la newsletter:",
+    email_btn: "Invia",
+    email_ok: "Grazie! Ti abbiamo registrato per la newsletter (se l’email è valida).",
+    email_error: "Inserisci un’email valida prima di inviare."
   },
 
   en: {
@@ -100,6 +113,8 @@ const I18N = {
 
     quick_tips_title: "Quick tips (mapping used by the quiz)",
 
+    // New initial question
+    q_interest: "Which sport are you interested in?",
     q_sport: "Which activity will you mainly practice?",
     q_weight: "How much do you weigh?",
     q_level: "What is your level?",
@@ -117,7 +132,16 @@ const I18N = {
 
     opt_style_glide: "Cruising / Glide",
     opt_style_carving: "Carving / Surf",
-    opt_style_pump: "Pump / Efficiency"
+    opt_style_pump: "Pump / Efficiency",
+
+    // Final step
+    final_title: "One last thing!",
+    final_text:
+      "Want to stay updated on deals, tests and new videos? Subscribe to our YouTube channel and leave your email!",
+    email_label: "Your email for the newsletter:",
+    email_btn: "Send",
+    email_ok: "Thank you! You’ve been registered for the newsletter (if the email is valid).",
+    email_error: "Please enter a valid email before sending."
   }
 };
 
@@ -127,6 +151,11 @@ const I18N = {
 function buildQuestions(lang) {
   const t = I18N[lang];
   return [
+    {
+      id: "interest",
+      q: t.q_interest,
+      opts: ["SUP", "Hydrofoil", "Pompe elettriche"]
+    },
     {
       id: "sport",
       q: t.q_sport,
@@ -270,8 +299,12 @@ export default function HydrofoilSelector() {
   const [loadingSource, setLoadingSource] = useState(false);
   const [pasteJson, setPasteJson] = useState("");
 
+  const [email, setEmail] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+
   const questions = buildQuestions(lang);
-  const TOTAL_STEPS = questions.length + 2; // domande + video + risultati
+  // domande + video + risultati + finale
+  const TOTAL_STEPS = questions.length + 3;
 
   // ------------------------------
   // Polling data source
@@ -324,11 +357,13 @@ export default function HydrofoilSelector() {
   function reset() {
     setStep(0);
     setAnswers({});
+    setEmail("");
+    setEmailMessage("");
   }
 
   // ------------------------------
-  // Matching prodotti (come prima)
-  // ------------------------------
+  // Matching prodotti (come prima, con piccolo extra su "interest")
+// ------------------------------
   function matchProducts() {
     if (!products.length) return [];
 
@@ -337,6 +372,11 @@ export default function HydrofoilSelector() {
     if (s.includes("wing")) tokens.push("wing", "lightwind");
     if (s.includes("surf")) tokens.push("surf");
     if (s.includes("pumping") || s.includes("sup")) tokens.push("pumping", "sup");
+
+    const interest = (answers.interest || "").toLowerCase();
+    if (interest.includes("sup")) tokens.push("sup");
+    if (interest.includes("pompe")) tokens.push("pump");
+    if (interest.includes("hydrofoil")) tokens.push("wing", "surf");
 
     const style = (answers.style || "").toLowerCase();
     if (style.includes("glide")) tokens.push("glide", "downwind");
@@ -392,6 +432,18 @@ export default function HydrofoilSelector() {
     }
   }
 
+  // ------------------------------
+  // Email submit (solo frontend)
+// ------------------------------
+  function handleEmailSubmit() {
+    if (!email || !email.includes("@")) {
+      setEmailMessage(t.email_error);
+      return;
+    }
+    // Qui potresti chiamare una API per salvare la mail
+    setEmailMessage(t.email_ok);
+  }
+
   // =============================================================
   // RENDER
   // =============================================================
@@ -423,7 +475,7 @@ export default function HydrofoilSelector() {
         </header>
 
         <main className="grid grid-cols-12 gap-6">
-          {/* LEFT: quiz + video + risultati */}
+          {/* LEFT: quiz + video + risultati + finale */}
           <section className="col-span-12 lg:col-span-7 bg-white rounded-2xl p-6 shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -506,14 +558,14 @@ export default function HydrofoilSelector() {
                       {t.back}
                     </button>
                     <button
-                      onClick={() => setStep(step + 1)}
+                      onClick={() => setStep(prev => prev + 1)}
                       className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm flex items-center gap-2"
                     >
                       {t.next} <ArrowRight size={14} />
                     </button>
                   </div>
                 </motion.div>
-              ) : (
+              ) : step === questions.length + 1 ? (
                 // STEP: RISULTATI
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                   <h2 className="text-xl font-semibold">{t.results_title}</h2>
@@ -571,7 +623,7 @@ export default function HydrofoilSelector() {
                     ))}
                   </div>
 
-                  <div className="mt-6 flex gap-3">
+                  <div className="mt-6 flex flex-wrap gap-3">
                     <button
                       onClick={reset}
                       className="px-4 py-2 bg-sky-600 text-white rounded-lg"
@@ -584,7 +636,55 @@ export default function HydrofoilSelector() {
                     >
                       {t.to_top}
                     </button>
+                    <button
+                      onClick={() => setStep(prev => prev + 1)}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg"
+                    >
+                      {t.next}
+                    </button>
                   </div>
+                </motion.div>
+              ) : (
+                // STEP FINALE — ISCRIZIONE YT + EMAIL
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                  <h2 className="text-xl font-semibold">{t.final_title}</h2>
+                  <p className="text-sm text-slate-600">{t.final_text}</p>
+
+                  <a
+                    href="https://www.youtube.com/sportalcentro"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:opacity-90"
+                  >
+                    www.youtube.com/sportalcentro
+                  </a>
+
+                  <div className="mt-4">
+                    <label className="text-sm font-medium">{t.email_label}</label>
+                    <input
+                      type="email"
+                      placeholder="la-tua-email@example.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      className="w-full mt-2 px-3 py-2 border rounded-lg text-sm"
+                    />
+                    <button
+                      onClick={handleEmailSubmit}
+                      className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg w-full text-sm font-medium"
+                    >
+                      {t.email_btn}
+                    </button>
+                    {emailMessage && (
+                      <p className="mt-2 text-xs text-slate-600">{emailMessage}</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={reset}
+                    className="mt-6 px-4 py-2 bg-slate-200 rounded-lg w-full text-sm"
+                  >
+                    {t.restart}
+                  </button>
                 </motion.div>
               )}
             </div>
@@ -690,7 +790,7 @@ export default function HydrofoilSelector() {
                   Wing/lightwind → prodotti con high-aspect, grandi superfici (es. Barracuda,
                   Leviathan)
                 </li>
-                <li>Beginner / all-around → ali \"Ride\" o modelli polivalenti</li>
+                <li>Beginner / all-around → ali "Ride" o modelli polivalenti</li>
                 <li>Surf / carving → Razor / ali a basso volume e alta reattività</li>
                 <li>Vuoi cambiare spesso disciplina → opta per sistema modulare (Kraken)</li>
               </ul>
@@ -699,7 +799,7 @@ export default function HydrofoilSelector() {
         </main>
 
         <footer className="mt-8 text-xs text-slate-500 text-center">
-          Progettato per \"Sport al centro\" — modifica il JSON di prodotto per aggiornare i suggerimenti
+          Progettato per "Sport al centro" — modifica il JSON di prodotto per aggiornare i suggerimenti
           in tempo reale.
         </footer>
       </div>
