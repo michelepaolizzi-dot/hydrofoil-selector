@@ -5,16 +5,16 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, RefreshCw, CloudLightning, Upload, Globe2 } from "lucide-react";
+import { ArrowRight, Upload, Globe2 } from "lucide-react";
 
 // =============================================================
 // 1️⃣ I18N — Testi generali IT / EN
 // =============================================================
 const I18N = {
   it: {
-    app_title: "Sport al centro — Product Selector",
+    app_title: "I migliori prodotti provati da Michele",
     app_subtitle:
-      "Selettore guidato per scegliere il prodotto giusto tra SUP gonfiabili, hydrofoil, tavole rigide wingfoil e pompe elettriche.",
+      "Qui trovi i prodotti con il miglior rapporto qualita/prezzo e qualità elevata tra quelli provati personalmente da noi sul canale Youtube.Se hai qualche domanda contattaci su Instagram, Whatsapp o e-mail",
 
     lang_label: "Lingua",
     category_title: "Da dove vuoi iniziare?",
@@ -47,7 +47,6 @@ const I18N = {
     data_source: "Sorgente dati",
     remote_json: "JSON remoto",
     local_fallback: "Fallback locale",
-    fetch_now: "Aggiorna ora",
     last_fetch: "Ultimo aggiornamento",
     status_ok: "ok",
     status_loading: "caricamento…",
@@ -57,7 +56,6 @@ const I18N = {
     products_list_title: "Prodotti disponibili",
     json_hint:
       "Suggerimento: pubblica un JSON per ogni categoria e aggiorna l'URL nel modulo corrispondente.",
-    paste_json_label: "Incolla JSON prodotti per override rapido",
     upload_json: "Applica JSON",
     cancel_json: "Annulla",
 
@@ -117,11 +115,9 @@ const I18N = {
     back: "Back",
     next: "Next",
 
-    // JSON / data source
     data_source: "Data source",
     remote_json: "Remote JSON",
     local_fallback: "Local fallback",
-    fetch_now: "Fetch now",
     last_fetch: "Last fetch",
     status_ok: "ok",
     status_loading: "loading…",
@@ -129,13 +125,9 @@ const I18N = {
 
     products_loaded: "Products loaded",
     products_list_title: "Available products",
-    json_hint:
-      "Tip: publish one JSON endpoint per category and update the URL in the corresponding module.",
-    paste_json_label: "Paste products JSON for quick override",
     upload_json: "Apply JSON",
     cancel_json: "Cancel",
 
-    // Newsletter + YouTube
     final_title: "One last thing!",
     final_text:
       "Want to stay updated on deals, tests and new videos? Subscribe to our YouTube channel and leave your email for the newsletter.",
@@ -146,7 +138,6 @@ const I18N = {
     email_ok: "Thank you! If the email is valid we’ll add you to our mailing list.",
     email_error: "Please enter a valid email.",
 
-    // Shared fields
     q_weight: "How much do you weigh?",
     opt_weight_1: "<60 kg",
     opt_weight_2: "60-75 kg",
@@ -470,7 +461,27 @@ const pumpsModule = {
   ]
 };
 
-const MODULES = [supModule, hydrofoilModule, wingRigidModule, pumpsModule];
+// =============================================================
+// 🔥 NUOVA DEFINIZIONE MODULES CON IMMAGINI
+// =============================================================
+const MODULES = [
+  {
+    ...supModule,
+    image: "https://media.adeo.com/mkp/52efae964714afffb04eac8a5f8b7d21/media.jpeg"
+  },
+  {
+    ...hydrofoilModule,
+    image: "https://images.unsplash.com/photo-1624213394899-232bd2e2fbf8?auto=format&fit=crop&w=900&q=80"
+  },
+  {
+    ...wingRigidModule,
+    image: "https://images.unsplash.com/photo-1595187087770-8d7e046c9f7f?auto=format&fit=crop&w=900&q=80"
+  },
+  {
+    ...pumpsModule,
+    image: "https://images.unsplash.com/photo-1602751587717-5b101e538c87?auto=format&fit=crop&w=900&q=80"
+  }
+];
 
 // =============================================================
 // 3️⃣ QUIZ ENGINE PER MODULO
@@ -898,9 +909,10 @@ export default function ProductAdvisorApp() {
   const activeModule = MODULES.find(m => m.id === activeModuleId) || null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 p-6 flex flex-col items-center">
+     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 p-6 flex flex-col items-center">
       <div className="w-full max-w-6xl">
-        {/* HEADER SITO */}
+        
+        {/* HEADER */}
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
@@ -910,6 +922,7 @@ export default function ProductAdvisorApp() {
               {t.app_subtitle}
             </p>
           </div>
+
           <div className="flex items-center gap-3 self-start md:self-auto">
             <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow-sm">
               <Globe2 size={16} className="text-slate-500" />
@@ -934,6 +947,7 @@ export default function ProductAdvisorApp() {
               <p className="text-sm text-slate-600 mt-1">{t.category_subtitle}</p>
             </div>
 
+            {/* 🔥 PULSANTI CATEGORIA CON IMMAGINI */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               {MODULES.map(mod => (
                 <motion.button
@@ -941,20 +955,31 @@ export default function ProductAdvisorApp() {
                   onClick={() => setActiveModuleId(mod.id)}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="text-left p-4 rounded-2xl bg-white shadow-md border border-slate-100 hover:border-sky-300 cursor-pointer flex flex-col justify-between"
+                  whileHover={{ scale: 1.03 }}
+                  className="flex flex-col bg-white shadow-md border border-slate-100 rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all"
                 >
-                  <div>
-                    <div className="text-sm font-semibold mb-1">
-                      {mod.getLabel(t)}
+                  
+                  {/* 🔥 Immagine categoria */}
+                  <div className="w-full h-32 bg-slate-200">
+                    <img
+                      src={mod.image}
+                      alt={mod.getLabel(t)}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Testo */}
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="text-sm font-semibold">{mod.getLabel(t)}</div>
+                      <div className="text-xs text-slate-600 mt-1">{mod.getDescription(t)}</div>
                     </div>
-                    <div className="text-xs text-slate-600">
-                      {mod.getDescription(t)}
+
+                    <div className="mt-3 text-[11px] text-sky-600 font-medium inline-flex items-center gap-1">
+                      {t.choose_category} <ArrowRight size={12} />
                     </div>
                   </div>
-                  <div className="mt-3 text-[11px] text-sky-600 font-medium inline-flex items-center gap-1">
-                    {t.choose_category} <ArrowRight size={12} />
-                  </div>
+                  
                 </motion.button>
               ))}
             </div>
@@ -972,9 +997,9 @@ export default function ProductAdvisorApp() {
 
         {/* FOOTER */}
         <footer className="mt-10 text-xs text-slate-500 text-center">
-          Progettato per <strong>Sport al centro</strong> — integra questo componente
-          nella tua pagina esistente per offrire consigli dinamici in base alla categoria scelta.
+          Progettato per <strong>Sport al centro</strong> — guida intelligente all’acquisto!
         </footer>
+
       </div>
     </div>
   );
