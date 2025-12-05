@@ -1,5 +1,5 @@
 // =============================================================
-// PRODUCT ADVISOR APP — MODULARE + MULTILINGUA + JSON REMOTO
+// PRODUCT ADVISOR APP — MODULARE + MULTILINGUA + MOBILE FRIENDLY
 // Sezioni: SUP gonfiabili, Hydrofoil, Tavole rigide Wingfoil, Pompe elettriche
 // =============================================================
 
@@ -14,7 +14,7 @@ const I18N = {
   it: {
     app_title: "I migliori prodotti provati da Michele",
     app_subtitle:
-      "Qui trovi i prodotti con il miglior rapporto qualita/prezzo e qualità elevata tra quelli provati personalmente da noi sul canale Youtube.Se hai qualche domanda contattaci su Instagram, Whatsapp o e-mail",
+      "Qui trovi i prodotti con il miglior rapporto qualita/prezzo e qualità elevata tra quelli provati personalmente da noi sul canale Youtube. Se hai qualche domanda contattaci su Instagram, Whatsapp o e-mail",
 
     lang_label: "Lingua",
     category_title: "Da dove vuoi iniziare?",
@@ -155,15 +155,10 @@ const I18N = {
 // 2️⃣ MODULI DI CATEGORIA — domande + logica matching + prodotti default
 // =============================================================
 
-// Ogni modulo ha:
-// id, getLabel(t), getDescription(t), productsUrl (da personalizzare),
-// getQuestions(t), match(answers, products), defaultProducts
-
 const supModule = {
   id: "sup",
   getLabel: t => t.category_sup,
   getDescription: t => t.category_sup_desc,
-  // TODO: sostituisci con il tuo endpoint reale
   productsUrl: "https://example.com/sup.json",
 
   getQuestions: t => [
@@ -462,12 +457,13 @@ const pumpsModule = {
 };
 
 // =============================================================
-// 🔥 NUOVA DEFINIZIONE MODULES CON IMMAGINI
+// 🔥 MODULES con immagini per prima pagina
 // =============================================================
 const MODULES = [
   {
     ...supModule,
-    image: "https://media.adeo.com/mkp/52efae964714afffb04eac8a5f8b7d21/media.jpeg"
+    image: "https://media.adeo.com/mkp/52efae964714afffb04eac8a5f8b7d21/media.jpeg",
+    badge: "Più richiesto"
   },
   {
     ...hydrofoilModule,
@@ -479,19 +475,15 @@ const MODULES = [
   },
   {
     ...pumpsModule,
-    image: "https://images.unsplash.com/photo-1602751587717-5b101e538c87?auto=format&fit=crop&w=900&q=80"
+    image: "https://images.unsplash.com/photo-1602751587717-5b101e538c87?auto=format&fit=crop&w=900&q=80",
+    badge: "Best value"
   }
 ];
 
 // =============================================================
-// 3️⃣ QUIZ ENGINE PER MODULO
+// 3️⃣ QUIZ ENGINE — Mobile friendly
 // =============================================================
-function QuizEngine({
-  module,
-  lang,
-  t,
-  onBackToCategories
-}) {
+function QuizEngine({ module, lang, t, onBackToCategories }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [products, setProducts] = useState(module.defaultProducts || []);
@@ -503,11 +495,7 @@ function QuizEngine({
   const [emailMessage, setEmailMessage] = useState("");
 
   const questions = module.getQuestions(t).map(q => {
-    // Adatta testo per lingua se definito separatemente
-    const text =
-      lang === "en" && q.q_en
-        ? q.q_en
-        : q.q;
+    const text = lang === "en" && q.q_en ? q.q_en : q.q;
     const opts =
       q.opts && Array.isArray(q.opts)
         ? q.opts
@@ -517,9 +505,8 @@ function QuizEngine({
     return { ...q, text, opts };
   });
 
-  const TOTAL_STEPS = questions.length + 2; // domande + risultati + finale
+  const TOTAL_STEPS = questions.length + 2;
 
-  // Fetch prodotti da JSON remoto per il modulo
   useEffect(() => {
     let abort = false;
 
@@ -573,7 +560,6 @@ function QuizEngine({
 
   const suggestions = step >= questions.length ? module.match(answers, products) : [];
 
-  // Applica JSON incollato
   function applyPastedJson() {
     try {
       const data = JSON.parse(pasteJson);
@@ -592,28 +578,26 @@ function QuizEngine({
       setEmailMessage(t.email_error);
       return;
     }
-    // Qui potresti chiamare una API backend
     setEmailMessage(t.email_ok);
   }
 
-  // RENDER
   return (
     <div className="grid grid-cols-12 gap-6">
       {/* LEFT: quiz */}
-      <section className="col-span-12 lg:col-span-7 bg-white rounded-2xl p-6 shadow-md">
+      <section className="col-span-12 lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-xs text-slate-500">
+            <div className="text-sm sm:text-xs text-slate-500 dark:text-slate-400">
               {t.progress_step} {Math.min(step + 1, TOTAL_STEPS)} {t.progress_of} {TOTAL_STEPS}
             </div>
-            <div className="text-sm text-slate-400 mt-1">
+            <div className="text-base sm:text-sm text-slate-400 dark:text-slate-300 mt-1">
               {module.getLabel(t)}
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-sm sm:text-xs">
             <button
               onClick={onBackToCategories}
-              className="px-3 py-1 rounded-full border bg-slate-50"
+              className="px-3 py-1.5 rounded-full border bg-slate-50 dark:bg-slate-800 dark:text-slate-100"
             >
               {t.back_to_categories}
             </button>
@@ -621,7 +605,7 @@ function QuizEngine({
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-6">
+        <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-6">
           <div
             className="h-full bg-sky-500 transition-all"
             style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
@@ -641,16 +625,18 @@ function QuizEngine({
                 const current = questions[step];
                 return (
                   <>
-                    <h2 className="text-lg font-semibold">{current.text}</h2>
+                    <h2 className="text-xl sm:text-lg font-semibold leading-snug dark:text-slate-50">
+                      {current.text}
+                    </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                       {current.opts.map(opt => (
                         <button
                           key={opt}
                           onClick={() => answer(current.id, opt)}
-                          className="text-left p-3 rounded-lg border hover:shadow-sm hover:scale-[1.01] transition-transform bg-gradient-to-br from-white to-slate-50"
+                          className="text-left p-4 rounded-lg border hover:shadow-sm hover:scale-[1.01] transition-transform bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800"
                         >
-                          <div className="font-medium">{opt}</div>
-                          <div className="text-xs text-slate-500 mt-1">
+                          <div className="font-medium text-base dark:text-slate-50">{opt}</div>
+                          <div className="text-sm sm:text-xs text-slate-500 dark:text-slate-400 mt-1">
                             Seleziona per procedere
                           </div>
                         </button>
@@ -660,11 +646,11 @@ function QuizEngine({
                       <button
                         onClick={back}
                         disabled={step === 0}
-                        className="px-3 py-2 rounded-md text-sm bg-slate-100 disabled:opacity-50"
+                        className="px-3 py-2 rounded-md text-sm bg-slate-100 dark:bg-slate-800 dark:text-slate-100 disabled:opacity-50"
                       >
                         {t.back}
                       </button>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-sm sm:text-xs text-slate-400 dark:text-slate-300">
                         Risposte: {Object.keys(answers).length}
                       </div>
                     </div>
@@ -675,17 +661,21 @@ function QuizEngine({
           ) : step === questions.length ? (
             // STEP RISULTATI
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-              <h2 className="text-xl font-semibold">{t.results_title}</h2>
-              <p className="text-sm text-slate-600">{t.results_sub}</p>
+              <h2 className="text-2xl sm:text-xl font-semibold dark:text-slate-50">
+                {t.results_title}
+              </h2>
+              <p className="text-base sm:text-sm text-slate-600 dark:text-slate-300">
+                {t.results_sub}
+              </p>
 
               <div className="grid grid-cols-1 gap-4 mt-4">
                 {(suggestions.length ? suggestions : products.slice(0, 3)).map(p => (
                   <article
                     key={p.id}
-                    className="p-4 rounded-lg border bg-gradient-to-br from-white to-slate-50"
+                    className="p-4 rounded-lg border bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
                         {p.image_url ? (
                           <img
                             src={p.image_url}
@@ -693,34 +683,36 @@ function QuizEngine({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                          <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
                             No image
                           </div>
                         )}
                       </div>
                       <div>
-                        <div className="font-bold">
+                        <div className="font-bold text-base sm:text-lg dark:text-slate-50">
                           {p.brand} {p.model || p.name}
                         </div>
                         {p.notes && (
-                          <div className="text-sm text-slate-500 mt-1">{p.notes}</div>
+                          <div className="text-sm text-slate-500 dark:text-slate-300 mt-1">
+                            {p.notes}
+                          </div>
                         )}
-                        <div className="text-xs text-slate-400 mt-2">
+                        <div className="text-sm text-slate-400 dark:text-slate-400 mt-2">
                           {p.tags && p.tags.length ? `Tags: ${p.tags.join(", ")}` : null}
                         </div>
                         {p.price && (
-                          <div className="text-sm text-emerald-600 font-semibold mt-1">
+                          <div className="text-base text-emerald-600 font-semibold mt-1">
                             {p.price}
                           </div>
                         )}
                         {p.discount_code && (
-                          <div className="mt-2 px-2 py-1 bg-yellow-200 text-yellow-900 rounded-md text-sm font-semibold">
+                          <div className="mt-2 px-2 py-1 bg-yellow-200 text-yellow-900 rounded-md text-sm font-semibold inline-block">
                             Coupon: {p.discount_code}
                           </div>
                         )}
                         {p.url && (
                           <a
-                            className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sky-600"
+                            className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400"
                             href={p.url}
                             target="_blank"
                             rel="noreferrer"
@@ -735,13 +727,13 @@ function QuizEngine({
               </div>
 
               {!suggestions.length && (
-                <p className="mt-2 text-xs text-amber-600">{t.no_results}</p>
+                <p className="mt-2 text-sm text-amber-600">{t.no_results}</p>
               )}
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <button
                   onClick={resetModule}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 dark:text-slate-100 text-slate-700 rounded-lg text-sm"
                 >
                   {t.restart_quiz}
                 </button>
@@ -756,26 +748,32 @@ function QuizEngine({
           ) : (
             // STEP FINALE — YOUTUBE + EMAIL
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-              <h2 className="text-xl font-semibold">{t.final_title}</h2>
-              <p className="text-sm text-slate-600">{t.final_text}</p>
+              <h2 className="text-2xl sm:text-xl font-semibold dark:text-slate-50">
+                {t.final_title}
+              </h2>
+              <p className="text-base sm:text-sm text-slate-600 dark:text-slate-300">
+                {t.final_text}
+              </p>
 
               <a
                 href="https://www.youtube.com/sportalcentro"
                 target="_blank"
                 rel="noreferrer"
-                className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:opacity-90"
+                className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:opacity-90 text-base"
               >
                 {t.yt_button} — www.youtube.com/sportalcentro
               </a>
 
               <div className="mt-4">
-                <label className="text-sm font-medium">{t.email_label}</label>
+                <label className="text-sm font-medium dark:text-slate-100">
+                  {t.email_label}
+                </label>
                 <input
                   type="email"
                   placeholder={t.email_placeholder}
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full mt-2 px-3 py-2 border rounded-lg text-sm"
+                  className="w-full mt-2 px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                 />
                 <button
                   onClick={handleEmailSubmit}
@@ -784,20 +782,22 @@ function QuizEngine({
                   {t.email_send}
                 </button>
                 {emailMessage && (
-                  <p className="mt-2 text-xs text-slate-600">{emailMessage}</p>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                    {emailMessage}
+                  </p>
                 )}
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <button
                   onClick={resetModule}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 dark:text-slate-100 text-slate-700 rounded-lg text-sm"
                 >
                   {t.restart_quiz}
                 </button>
                 <button
                   onClick={onBackToCategories}
-                  className="px-4 py-2 bg-white border text-slate-700 rounded-lg text-sm"
+                  className="px-4 py-2 bg-white dark:bg-slate-900 border dark:border-slate-700 text-slate-700 dark:text-slate-100 rounded-lg text-sm"
                 >
                   {t.back_to_categories}
                 </button>
@@ -809,19 +809,19 @@ function QuizEngine({
 
       {/* RIGHT: data source & lista prodotti */}
       <aside className="col-span-12 lg:col-span-5 space-y-4">
-        <div className="bg-white rounded-2xl p-4 shadow-md">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <div className="text-xs text-slate-500">{t.data_source}</div>
-              <div className="text-sm font-medium">
+              <div className="text-sm text-slate-500 dark:text-slate-400">{t.data_source}</div>
+              <div className="text-base font-medium dark:text-slate-100">
                 {module.productsUrl ? t.remote_json : t.local_fallback}
               </div>
             </div>
-            <div className="text-xs text-slate-400 text-right">
+            <div className="text-sm text-slate-400 dark:text-slate-300 text-right">
               <div>
                 {t.last_fetch}: {lastFetched ? lastFetched : "—"}
               </div>
-              <div className="text-amber-600">
+              <div className="text-amber-600 text-sm">
                 {sourceError
                   ? `${t.status_error}: ${sourceError}`
                   : loadingSource
@@ -830,18 +830,18 @@ function QuizEngine({
               </div>
             </div>
           </div>
-          <p className="text-xs text-slate-500 mb-2">{t.json_hint}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{t.json_hint}</p>
           <textarea
             value={pasteJson}
             onChange={e => setPasteJson(e.target.value)}
             rows={4}
-            className="w-full mt-1 p-2 border rounded-md text-xs"
+            className="w-full mt-1 p-2 border rounded-md text-sm bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
             placeholder='[ { "id": "x", "brand": "Brand", "model": "Model", "tags": ["allround"] } ]'
           />
           <div className="flex gap-2 mt-2">
             <button
               onClick={applyPastedJson}
-              className="px-3 py-2 rounded-lg bg-emerald-600 text-white flex items-center gap-2 text-xs"
+              className="px-3 py-2 rounded-lg bg-emerald-600 text-white flex items-center gap-2 text-sm"
             >
               <Upload size={14} />
               {t.upload_json}
@@ -852,33 +852,40 @@ function QuizEngine({
                 setSourceError(null);
                 setProducts(module.defaultProducts || []);
               }}
-              className="px-3 py-2 rounded-lg border text-xs"
+              className="px-3 py-2 rounded-lg border text-sm bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100"
             >
               {t.cancel_json}
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-md">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-medium">{t.products_list_title}</div>
-            <div className="text-xs text-slate-400">
+            <div className="text-base font-medium dark:text-slate-100">
+              {t.products_list_title}
+            </div>
+            <div className="text-sm text-slate-400 dark:text-slate-300">
               {t.products_loaded}: {products.length}
             </div>
           </div>
           <div className="mt-2 grid grid-cols-1 gap-3 max-h-64 overflow-auto">
             {products.map(p => (
-              <div key={p.id} className="p-3 border rounded-lg bg-slate-50">
+              <div
+                key={p.id}
+                className="p-3 border rounded-lg bg-slate-50 dark:bg-slate-800 dark:border-slate-700"
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-sm">
+                    <div className="font-semibold text-sm sm:text-base dark:text-slate-100">
                       {p.brand} {p.model || p.name}
                     </div>
                     {p.notes && (
-                      <div className="text-xs text-slate-500">{p.notes}</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-300">
+                        {p.notes}
+                      </div>
                     )}
                   </div>
-                  <div className="text-[11px] text-slate-400 text-right">
+                  <div className="text-xs sm:text-[11px] text-slate-400 dark:text-slate-300 text-right">
                     {p.tags && p.tags.length ? p.tags.join(", ") : ""}
                   </div>
                 </div>
@@ -892,7 +899,7 @@ function QuizEngine({
 }
 
 // =============================================================
-// 4️⃣ COMPONENTE PRINCIPALE — Layout del sito + scelta categoria
+// 4️⃣ COMPONENTE PRINCIPALE — Layout + scelta categoria
 // =============================================================
 export default function ProductAdvisorApp() {
   const [lang, setLang] = useState(() => {
@@ -909,28 +916,29 @@ export default function ProductAdvisorApp() {
   const activeModule = MODULES.find(m => m.id === activeModuleId) || null;
 
   return (
-     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 p-6 flex flex-col items-center">
-      <div className="w-full max-w-6xl">
-        
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 sm:p-6 flex flex-col items-center">
+      <div className="w-full max-w-6xl text-base sm:text-[15px] md:text-[16px]">
         {/* HEADER */}
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight dark:text-slate-50">
               {t.app_title}
             </h1>
-            <p className="text-sm md:text-base text-slate-600 mt-2">
+            <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 mt-3">
               {t.app_subtitle}
             </p>
           </div>
 
           <div className="flex items-center gap-3 self-start md:self-auto">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow-sm">
-              <Globe2 size={16} className="text-slate-500" />
-              <span className="text-xs text-slate-500">{t.lang_label}</span>
+            <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
+              <Globe2 size={16} className="text-slate-500 dark:text-slate-300" />
+              <span className="text-sm text-slate-600 dark:text-slate-200">
+                {t.lang_label}
+              </span>
               <select
                 value={lang}
                 onChange={e => setLang(e.target.value)}
-                className="text-xs bg-transparent outline-none"
+                className="text-sm bg-transparent outline-none dark:text-slate-100"
               >
                 <option value="it">Italiano</option>
                 <option value="en">English</option>
@@ -942,12 +950,16 @@ export default function ProductAdvisorApp() {
         {/* MAIN */}
         {!activeModule ? (
           <main>
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold">{t.category_title}</h2>
-              <p className="text-sm text-slate-600 mt-1">{t.category_subtitle}</p>
+            <div className="mb-5 sm:mb-6">
+              <h2 className="text-2xl sm:text-xl font-semibold dark:text-slate-50">
+                {t.category_title}
+              </h2>
+              <p className="text-base sm:text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                {t.category_subtitle}
+              </p>
             </div>
 
-            {/* 🔥 PULSANTI CATEGORIA CON IMMAGINI */}
+            {/* PULSANTI CATEGORIA CON IMMAGINI */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               {MODULES.map(mod => (
                 <motion.button
@@ -956,30 +968,37 @@ export default function ProductAdvisorApp() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ scale: 1.03 }}
-                  className="flex flex-col bg-white shadow-md border border-slate-100 rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all"
+                  className="group flex flex-col bg-white dark:bg-slate-900 shadow-md border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all"
                 >
-                  
-                  {/* 🔥 Immagine categoria */}
-                  <div className="w-full h-32 bg-slate-200">
+                  {/* Immagine categoria con hover zoom */}
+                  <div className="w-full h-32 bg-slate-200 dark:bg-slate-800 overflow-hidden relative">
                     <img
                       src={mod.image}
                       alt={mod.getLabel(t)}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    {mod.badge && (
+                      <span className="absolute top-2 left-2 px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white shadow-sm">
+                        {mod.badge}
+                      </span>
+                    )}
                   </div>
 
                   {/* Testo */}
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="text-sm font-semibold">{mod.getLabel(t)}</div>
-                      <div className="text-xs text-slate-600 mt-1">{mod.getDescription(t)}</div>
+                      <div className="text-base font-semibold dark:text-slate-50">
+                        {mod.getLabel(t)}
+                      </div>
+                      <div className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                        {mod.getDescription(t)}
+                      </div>
                     </div>
 
-                    <div className="mt-3 text-[11px] text-sky-600 font-medium inline-flex items-center gap-1">
-                      {t.choose_category} <ArrowRight size={12} />
+                    <div className="mt-3 text-sm text-sky-600 dark:text-sky-400 font-medium inline-flex items-center gap-1">
+                      {t.choose_category} <ArrowRight size={14} />
                     </div>
                   </div>
-                  
                 </motion.button>
               ))}
             </div>
@@ -996,10 +1015,9 @@ export default function ProductAdvisorApp() {
         )}
 
         {/* FOOTER */}
-        <footer className="mt-10 text-xs text-slate-500 text-center">
+        <footer className="mt-10 text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center">
           Progettato per <strong>Sport al centro</strong> — guida intelligente all’acquisto!
         </footer>
-
       </div>
     </div>
   );
