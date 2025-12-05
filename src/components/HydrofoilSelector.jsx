@@ -1,5 +1,5 @@
 // =============================================================
-// PRODUCT ADVISOR APP — MODULARE + MULTILINGUA + MOBILE FRIENDLY
+// PRODUCT ADVISOR APP — MODULARE + MULTILINGUA — APP STYLE MOBILE
 // Sezioni: SUP gonfiabili, Hydrofoil, Tavole rigide Wingfoil, Pompe elettriche
 // =============================================================
 
@@ -14,7 +14,7 @@ const I18N = {
   it: {
     app_title: "I migliori prodotti provati da Michele",
     app_subtitle:
-      "Qui trovi i prodotti con il miglior rapporto qualita/prezzo e qualità elevata tra quelli provati personalmente da noi sul canale Youtube. Se hai qualche domanda contattaci su Instagram, Whatsapp o e-mail",
+      "Prodotti con miglior rapporto qualità/prezzo e qualità elevata, provati personalmente sul canale YouTube. Per dubbi scrivimi su Instagram, WhatsApp o e-mail.",
 
     lang_label: "Lingua",
     category_title: "Da dove vuoi iniziare?",
@@ -457,7 +457,7 @@ const pumpsModule = {
 };
 
 // =============================================================
-// 🔥 MODULES con immagini per prima pagina
+// MODULES con immagini per la home
 // =============================================================
 const MODULES = [
   {
@@ -481,7 +481,7 @@ const MODULES = [
 ];
 
 // =============================================================
-// 3️⃣ QUIZ ENGINE — Mobile friendly
+// 3️⃣ QUIZ ENGINE — Mobile / App style
 // =============================================================
 function QuizEngine({ module, lang, t, onBackToCategories }) {
   const [step, setStep] = useState(0);
@@ -582,19 +582,19 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-6">
+    <div className="grid grid-cols-12 gap-4 sm:gap-6">
       {/* LEFT: quiz */}
-      <section className="col-span-12 lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md">
+      <section className="col-span-12 lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 shadow-md">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-sm sm:text-xs text-slate-500 dark:text-slate-400">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
               {t.progress_step} {Math.min(step + 1, TOTAL_STEPS)} {t.progress_of} {TOTAL_STEPS}
             </div>
-            <div className="text-base sm:text-sm text-slate-400 dark:text-slate-300 mt-1">
+            <div className="text-base text-slate-400 dark:text-slate-300 mt-1">
               {module.getLabel(t)}
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm sm:text-xs">
+          <div className="flex items-center gap-2 text-sm">
             <button
               onClick={onBackToCategories}
               className="px-3 py-1.5 rounded-full border bg-slate-50 dark:bg-slate-800 dark:text-slate-100"
@@ -605,14 +605,14 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-6">
+        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-5">
           <div
             className="h-full bg-sky-500 transition-all"
             style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
           />
         </div>
 
-        <div className="mt-4">
+        <div className="mt-2">
           {/* STEP DOMANDE */}
           {step < questions.length ? (
             <motion.div
@@ -625,7 +625,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                 const current = questions[step];
                 return (
                   <>
-                    <h2 className="text-xl sm:text-lg font-semibold leading-snug dark:text-slate-50">
+                    <h2 className="text-2xl font-semibold leading-snug dark:text-slate-50">
                       {current.text}
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
@@ -633,11 +633,11 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                         <button
                           key={opt}
                           onClick={() => answer(current.id, opt)}
-                          className="text-left p-4 rounded-lg border hover:shadow-sm hover:scale-[1.01] transition-transform bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800"
+                          className="text-left p-4 rounded-2xl border hover:shadow-sm hover:scale-[1.01] transition-transform bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800"
                         >
                           <div className="font-medium text-base dark:text-slate-50">{opt}</div>
-                          <div className="text-sm sm:text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            Seleziona per procedere
+                          <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Tap per selezionare
                           </div>
                         </button>
                       ))}
@@ -646,11 +646,11 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                       <button
                         onClick={back}
                         disabled={step === 0}
-                        className="px-3 py-2 rounded-md text-sm bg-slate-100 dark:bg-slate-800 dark:text-slate-100 disabled:opacity-50"
+                        className="px-3 py-2 rounded-xl text-sm bg-slate-100 dark:bg-slate-800 dark:text-slate-100 disabled:opacity-50"
                       >
                         {t.back}
                       </button>
-                      <div className="text-sm sm:text-xs text-slate-400 dark:text-slate-300">
+                      <div className="text-sm text-slate-400 dark:text-slate-300">
                         Risposte: {Object.keys(answers).length}
                       </div>
                     </div>
@@ -661,10 +661,10 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
           ) : step === questions.length ? (
             // STEP RISULTATI
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-              <h2 className="text-2xl sm:text-xl font-semibold dark:text-slate-50">
+              <h2 className="text-2xl font-semibold dark:text-slate-50">
                 {t.results_title}
               </h2>
-              <p className="text-base sm:text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-base text-slate-600 dark:text-slate-300">
                 {t.results_sub}
               </p>
 
@@ -672,10 +672,10 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                 {(suggestions.length ? suggestions : products.slice(0, 3)).map(p => (
                   <article
                     key={p.id}
-                    className="p-4 rounded-lg border bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700"
+                    className="p-4 rounded-2xl border bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
                         {p.image_url ? (
                           <img
                             src={p.image_url}
@@ -689,7 +689,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-base sm:text-lg dark:text-slate-50">
+                        <div className="font-bold text-lg dark:text-slate-50">
                           {p.brand} {p.model || p.name}
                         </div>
                         {p.notes && (
@@ -748,10 +748,10 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
           ) : (
             // STEP FINALE — YOUTUBE + EMAIL
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-              <h2 className="text-2xl sm:text-xl font-semibold dark:text-slate-50">
+              <h2 className="text-2xl font-semibold dark:text-slate-50">
                 {t.final_title}
               </h2>
-              <p className="text-base sm:text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-base text-slate-600 dark:text-slate-300">
                 {t.final_text}
               </p>
 
@@ -759,7 +759,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                 href="https://www.youtube.com/sportalcentro"
                 target="_blank"
                 rel="noreferrer"
-                className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:opacity-90 text-base"
+                className="block w-full text-center px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:opacity-90 text-base"
               >
                 {t.yt_button} — www.youtube.com/sportalcentro
               </a>
@@ -809,7 +809,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
 
       {/* RIGHT: data source & lista prodotti */}
       <aside className="col-span-12 lg:col-span-5 space-y-4">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-md">
           <div className="flex items-center justify-between mb-2">
             <div>
               <div className="text-sm text-slate-500 dark:text-slate-400">{t.data_source}</div>
@@ -859,7 +859,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-md">
           <div className="flex items-center justify-between mb-2">
             <div className="text-base font-medium dark:text-slate-100">
               {t.products_list_title}
@@ -872,11 +872,11 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
             {products.map(p => (
               <div
                 key={p.id}
-                className="p-3 border rounded-lg bg-slate-50 dark:bg-slate-800 dark:border-slate-700"
+                className="p-3 border rounded-2xl bg-slate-50 dark:bg-slate-800 dark:border-slate-700"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-sm sm:text-base dark:text-slate-100">
+                    <div className="font-semibold text-sm dark:text-slate-100">
                       {p.brand} {p.model || p.name}
                     </div>
                     {p.notes && (
@@ -885,7 +885,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                       </div>
                     )}
                   </div>
-                  <div className="text-xs sm:text-[11px] text-slate-400 dark:text-slate-300 text-right">
+                  <div className="text-xs text-slate-400 dark:text-slate-300 text-right">
                     {p.tags && p.tags.length ? p.tags.join(", ") : ""}
                   </div>
                 </div>
@@ -899,7 +899,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
 }
 
 // =============================================================
-// 4️⃣ COMPONENTE PRINCIPALE — Layout + scelta categoria
+// 4️⃣ COMPONENTE PRINCIPALE — App style
 // =============================================================
 export default function ProductAdvisorApp() {
   const [lang, setLang] = useState(() => {
@@ -916,107 +916,105 @@ export default function ProductAdvisorApp() {
   const activeModule = MODULES.find(m => m.id === activeModuleId) || null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 sm:p-6 flex flex-col items-center">
-      <div className="w-full max-w-6xl text-base sm:text-[15px] md:text-[16px]">
-        {/* HEADER */}
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 sm:mb-8">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight dark:text-slate-50">
-              {t.app_title}
-            </h1>
-            <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 mt-3">
-              {t.app_subtitle}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 self-start md:self-auto">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
-              <Globe2 size={16} className="text-slate-500 dark:text-slate-300" />
-              <span className="text-sm text-slate-600 dark:text-slate-200">
-                {t.lang_label}
-              </span>
-              <select
-                value={lang}
-                onChange={e => setLang(e.target.value)}
-                className="text-sm bg-transparent outline-none dark:text-slate-100"
-              >
-                <option value="it">Italiano</option>
-                <option value="en">English</option>
-              </select>
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-50">
+      <div className="flex flex-col min-h-screen">
+        {/* HEADER APP STYLE */}
+        <header className="sticky top-0 z-20 bg-gradient-to-b from-sky-50/95 via-sky-50/95 to-transparent dark:from-slate-950/95 dark:via-slate-950/95 backdrop-blur border-b border-slate-100/60 dark:border-slate-800 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">
+                {t.app_title}
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 max-w-xl">
+                {t.app_subtitle}
+              </p>
+            </div>
+            <div className="ml-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 rounded-full shadow-sm border border-slate-200 dark:border-slate-700">
+                <Globe2 size={16} className="text-slate-500 dark:text-slate-300" />
+                <select
+                  value={lang}
+                  onChange={e => setLang(e.target.value)}
+                  className="text-xs sm:text-sm bg-transparent outline-none dark:text-slate-100"
+                >
+                  <option value="it">IT</option>
+                  <option value="en">EN</option>
+                </select>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* MAIN */}
-        {!activeModule ? (
-          <main>
-            <div className="mb-5 sm:mb-6">
-              <h2 className="text-2xl sm:text-xl font-semibold dark:text-slate-50">
-                {t.category_title}
-              </h2>
-              <p className="text-base sm:text-sm text-slate-600 dark:text-slate-300 mt-1.5">
-                {t.category_subtitle}
-              </p>
-            </div>
+        {/* MAIN APP BODY */}
+        <main className="flex-1 px-4 pb-6 pt-3">
+          {!activeModule ? (
+            <div className="space-y-4">
+              <div className="mt-1 mb-3">
+                <h2 className="text-xl font-semibold">
+                  {t.category_title}
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                  {t.category_subtitle}
+                </p>
+              </div>
 
-            {/* PULSANTI CATEGORIA CON IMMAGINI */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-              {MODULES.map(mod => (
-                <motion.button
-                  key={mod.id}
-                  onClick={() => setActiveModuleId(mod.id)}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.03 }}
-                  className="group flex flex-col bg-white dark:bg-slate-900 shadow-md border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg transition-all"
-                >
-                  {/* Immagine categoria con hover zoom */}
-                  <div className="w-full h-32 bg-slate-200 dark:bg-slate-800 overflow-hidden relative">
-                    <img
-                      src={mod.image}
-                      alt={mod.getLabel(t)}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    {mod.badge && (
-                      <span className="absolute top-2 left-2 px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white shadow-sm">
-                        {mod.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Testo */}
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="text-base font-semibold dark:text-slate-50">
-                        {mod.getLabel(t)}
-                      </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-                        {mod.getDescription(t)}
-                      </div>
+              {/* CARD CATEGORIA FULL-VISUAL */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4">
+                {MODULES.map(mod => (
+                  <motion.button
+                    key={mod.id}
+                    onClick={() => setActiveModuleId(mod.id)}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="group flex flex-col bg-white dark:bg-slate-900 shadow-md border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden cursor-pointer hover:shadow-xl transition-all"
+                  >
+                    {/* Immagine categoria full card top */}
+                    <div className="w-full h-44 sm:h-52 bg-slate-200 dark:bg-slate-800 overflow-hidden relative">
+                      <img
+                        src={mod.image}
+                        alt={mod.getLabel(t)}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      {mod.badge && (
+                        <span className="absolute top-2 left-2 px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500 text-white shadow-sm">
+                          {mod.badge}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="mt-3 text-sm text-sky-600 dark:text-sky-400 font-medium inline-flex items-center gap-1">
-                      {t.choose_category} <ArrowRight size={14} />
+                    {/* Testo card */}
+                    <div className="p-4 flex-1 flex flex-col justify-between items-start text-left">
+                      <div>
+                        <div className="text-lg font-semibold dark:text-slate-50">
+                          {mod.getLabel(t)}
+                        </div>
+                        <div className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                          {mod.getDescription(t)}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 text-sm text-sky-600 dark:text-sky-400 font-medium inline-flex items-center gap-1">
+                        {t.choose_category} <ArrowRight size={16} />
+                      </div>
                     </div>
-                  </div>
-                </motion.button>
-              ))}
+                  </motion.button>
+                ))}
+              </div>
             </div>
-          </main>
-        ) : (
-          <main>
+          ) : (
             <QuizEngine
               module={activeModule}
               lang={lang}
               t={t}
               onBackToCategories={() => setActiveModuleId(null)}
             />
-          </main>
-        )}
+          )}
+        </main>
 
-        {/* FOOTER */}
-        <footer className="mt-10 text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center">
-          Progettato per <strong>Sport al centro</strong> — guida intelligente all’acquisto!
+        {/* FOOTER APP */}
+        <footer className="px-4 pb-4 pt-2 text-[11px] text-slate-500 dark:text-slate-400 text-center">
+          Progettato per <strong>Sport al centro</strong> — pensato per l’uso da smartphone. 🏄‍♂️
         </footer>
       </div>
     </div>
