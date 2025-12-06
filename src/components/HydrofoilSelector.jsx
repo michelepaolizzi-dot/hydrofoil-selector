@@ -133,8 +133,10 @@ const supModule = {
   getQuestions: t => [
     {
       id: "level",
-      q: "Qual è il tuo livello di esperienza con il SUP?",
-      q_en: "What's your SUP experience level?",
+      q: {
+        it: "Qual è il tuo livello di esperienza con il SUP?",
+        en: "What's your SUP experience level?"
+      },
       opts: {
         it: [
           "Principiante (prime uscite)",
@@ -150,8 +152,10 @@ const supModule = {
     },
     {
       id: "usage",
-      q: "Come utilizzerai principalmente la tavola?",
-      q_en: "How will you mainly use the board?",
+      q: {
+        it: "Come utilizzerai principalmente la tavola?",
+        en: "How will you mainly use the board?"
+      },
       opts: {
         it: [
           "Relax / escursioni brevi",
@@ -171,7 +175,10 @@ const supModule = {
     },
     {
       id: "weight",
-      q: t.q_weight,
+      q: {
+        it: "Qual è il tuo peso complessivo (incluso eventuale carico)?",
+        en: "Total weight including gear?"
+      },
       opts: {
         it: ["< 75 kg", "75–95 kg", "> 95 kg"],
         en: ["< 75 kg", "75–95 kg", "> 95 kg"]
@@ -179,117 +186,97 @@ const supModule = {
     },
     {
       id: "water",
-      q: "Dove la utilizzerai più spesso?",
-      q_en: "Where will you use it most often?",
+      q: {
+        it: "Dove la utilizzerai più spesso?",
+        en: "Where will you use it most?"
+      },
       opts: {
-        it: [
-          "Mare calmo",
-          "Lago",
-          "Fiumi o acqua mossa",
-          "Un po’ ovunque"
-        ],
-        en: [
-          "Calm sea",
-          "Lake",
-          "Rivers / choppy conditions",
-          "A bit everywhere"
-        ]
+        it: ["Mare calmo", "Lago", "Fiumi o acqua mossa", "Un po’ ovunque"],
+        en: ["Calm sea", "Lake", "Rivers / choppy", "Everywhere"]
       }
     },
     {
       id: "priority",
-      q: "Qual è la tua priorità principale?",
-      q_en: "What is your main priority?",
+      q: {
+        it: "Qual è la tua priorità principale?",
+        en: "Main priority?"
+      },
       opts: {
-        it: [
-          "Stabilità",
-          "Velocità e scorrevolezza",
-          "Maneggevolezza",
-          "Facilità di trasporto / peso leggero",
-          "Budget contenuto"
-        ],
-        en: [
-          "Stability",
-          "Speed & glide",
-          "Maneuverability",
-          "Lightweight / portability",
-          "Low budget"
-        ]
+        it: ["Stabilità", "Velocità e scorrevolezza", "Prezzo basso"],
+        en: ["Stability", "Speed", "Low price"]
       }
     },
     {
       id: "budget",
-      q: "Quanto vuoi spendere?",
-      q_en: "What's your budget?",
+      q: {
+        it: "Quanto vuoi spendere?",
+        en: "What's your budget?"
+      },
       opts: {
-        it: [
-          "< 200 €",
-          "200–300 €",
-          "300–500 €",
-          "Oltre 500 €"
-        ],
-        en: [
-          "< 200 €",
-          "200–300 €",
-          "300–500 €",
-          "Over 500 €"
-        ]
+        it: ["< 200 €", "200–300 €", "300–500 €", "Oltre 500 €"],
+        en: ["< 200 €", "200–300 €", "300–500 €", "Over 500 €"]
       }
     }
   ],
 
   match: (answers, products) => {
-  // Convertiamo peso in un numero indicativo
-  const weightMap = {
-    "< 75 kg": 70,
-    "75–95 kg": 85,
-    "> 95 kg": 100
-  };
-  const userWeight = weightMap[answers.weight];
+    const weightMap = {
+      "< 75 kg": 70,
+      "75–95 kg": 85,
+      "> 95 kg": 100
+    };
+    const userWeight = weightMap[answers.weight];
 
-  // Budget massimo consentito
-  const budgetMap = {
-    "< 200 €": 200,
-    "200–300 €": 300,
-    "300–500 €": 500,
-    "Oltre 500 €": 2000
-  };
-  const maxPrice = budgetMap[answers.budget];
+    const budgetMap = {
+      "< 200 €": 200,
+      "200–300 €": 300,
+      "300–500 €": 500,
+      "Oltre 500 €": 2000
+    };
+    const maxPrice = budgetMap[answers.budget];
 
-  return products
-    .map(p => {
-      let score = 0;
+    return products
+      .map(p => {
+        let score = 0;
 
-      // 🎯 USO
-      const usageTagMap = {
-        "Relax / escursioni brevi": "relax",
-        "Touring / lunghe distanze": "touring",
-        "Yoga / fitness": "yoga",
-        "SUP con bambini/animali": "family",
-        "Piccole onde (SUP surf)": "surf"
-      };
-      if (p.tags.includes(usageTagMap[answers.usage])) score += 3;
+        const usageTagMap = {
+          "Relax / escursioni brevi": "relax",
+          "Touring / lunghe distanze": "touring",
+          "Yoga / fitness": "yoga",
+          "SUP con bambini/animali": "family",
+          "Piccole onde (SUP surf)": "surf"
+        };
+        if (p.tags.includes(usageTagMap[answers.usage])) score += 3;
 
-      // ⚖️ PESO
-      if (p.weight_max >= userWeight) score += 3;
-      if (p.weight_min <= userWeight) score += 1;
+        if (p.weight_max >= userWeight) score += 3;
+        if (p.weight_min <= userWeight) score += 1;
 
-      // 🏆 PRIORITÀ
-      if (answers.priority === "Stabilità") score += p.stability;
-      if (answers.priority === "Velocità e scorrevolezza") score += p.speed;
-      if (answers.priority === "Maneggevolezza") score += p.handling;
-      if (answers.priority === "Facilità di trasporto / peso leggero") score += p.portability;
-      if (answers.priority === "Budget contenuto" && p.price <= 350) score += 4;
+       // 🏆 PRIORITÀ
+        if (answers.priority === "Stabilità") score += p.stability;
+        if (answers.priority === "Velocità e scorrevolezza") score += p.speed;
+        if (answers.priority === "Prezzo basso" && p.price <= 350) score += 4;
 
-      // 💶 BUDGET
-      if (p.price <= maxPrice) score += 4;
+        // 🎓 Livello richiesto
+        if (p.required_level === answers.level) {
+          score += 4; // match perfetto
+        } else if (
+          (p.required_level === "Intermedio" && answers.level === "Avanzato") ||
+          (p.required_level === "Principiante" && answers.level !== "Avanzato")
+        ) {
+          score += 2; // match accettabile
+        } else {
+          score -= 5; // troppo avanzato per l'utente
+        }
 
-      return { ...p, score };
-    })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
-},
+        // 💶 BUDGET
+        if (p.price <= maxPrice) score += 4;
 
+
+        return { ...p, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  },
 
   defaultProducts: [
     {
@@ -300,18 +287,36 @@ const supModule = {
       image_url: "https://via.placeholder.com/300?text=Fanatic+Ray+Air",
       youtube_review_url: "https://youtu.be/abc123",
       discount_code: "FANATIC10",
-      discount_url: "https://shop.com/fanatic?coupon=FANATIC10"
-      tags: ["touring", "family", "relax", "surf", "yoga"],
+      discount_url: "https://shop.com/fanatic?coupon=FANATIC10",
+
       weight_min: 60,
       weight_max: 110,
-      stability: 1-5,
-      speed: 1-5,
-      handling: 1-5,
-      portability: 1-5,
-      price: 350
-    }
+      stability: 4,
+      speed: 4,
+      price: 699,
+      required_level: "principiante"
+
+    },
+        {
+      id: "sup1",
+      brand: "pesante",
+      model: "200 euro",
+      tags: ["touring"],
+      image_url: "https://via.placeholder.com/300?text=Fanatic+Ray+Air",
+      youtube_review_url: "https://youtu.be/abc123",
+      discount_code: "FANATIC10",
+      discount_url: "https://shop.com/fanatic?coupon=FANATIC10",
+
+      weight_min: 80,
+      weight_max: 110,
+      stability: 4,
+      speed: 4,
+      price: 200,
+      required_level: "Intermedio"
+    },
   ]
 };
+
 
 
 const hydrofoilModule = {
@@ -485,7 +490,9 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
           const opts = Array.isArray(q.opts) ? q.opts : q.opts[lang];
           return (
             <>
-              <h2 className="text-3xl font-black mb-6">{q.text}</h2>
+              <h2 className="text-3xl font-black mb-6">
+  {q.q[lang] || q.q.it}
+</h2>
 
               <div className="flex flex-col gap-4">
                 {opts.map(opt => (
@@ -532,11 +539,32 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                         {p.brand} {p.model}
                       </div>
 
-                      {p.tags && (
-                        <div className="text-lg text-slate-500 mt-1">
-                          {p.tags.join(", ")}
-                        </div>
-                      )}
+            {/* TAGS / USO PRINCIPALE */}
+            {p.tags && (
+              <div className="text-lg text-slate-500 mt-1">
+                {p.tags.join(", ")}
+              </div>
+            )}
+
+            {/* Parametri consigliati */}
+            <div className="mt-3 text-sm text-slate-600 space-y-1">
+              {"stability" in p && (
+                <div>🛶 Stabilità: <strong>{p.stability}/5</strong></div>
+              )}
+              {"speed" in p && (
+                <div>⚡ Velocità e scorrevolezza: <strong>{p.speed}/5</strong></div>
+              )}
+              {"price" in p && (
+                <div>💶 Prezzo indicativo: <strong>{p.price} €</strong></div>
+              )}
+            </div>
+
+
+            {"required_level" in p && (
+  <div>🎓 Livello consigliato: <strong>{p.required_level}</strong></div>
+)}
+
+
 
                       {/* ⭐ Testato sul canale */}
                       {p.youtube_review_url && (
