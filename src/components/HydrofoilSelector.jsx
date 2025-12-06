@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe2, MessageCircle } from "lucide-react";
 
+
 const appFont =
   'system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Roboto, Arial, sans-serif';
 
@@ -128,7 +129,6 @@ const supModule = {
   productsUrl: null,
 
   getLabel: t => t.category_sup,
-  getDescription: t => t.category_sup_desc,
 
   getQuestions: t => [
     {
@@ -277,6 +277,7 @@ const supModule = {
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
   },
+
 
   defaultProducts: [
     {
@@ -702,9 +703,6 @@ export default function ProductAdvisorApp() {
               <div className="flex-1 text-left">
                 <div className="text-3xl font-extrabold text-white">
                   {mod.getLabel(t)}
-                </div>
-                <div className="text-xl text-white/90">
-                  {mod.getDescription(t)}
                 </div>
               </div>
               <ArrowRight className="text-white" size={36} />
