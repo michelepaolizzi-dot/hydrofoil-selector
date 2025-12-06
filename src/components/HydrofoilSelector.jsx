@@ -132,24 +132,164 @@ const supModule = {
 
   getQuestions: t => [
     {
-      id: "usage",
-      q: "Per cosa lo userai?",
-      q_en: "What will you use it for?",
-      opts: { it: ["Passeggiate", "Touring", "Race"], en: ["Cruising", "Touring", "Race"] }
+      id: "level",
+      q: "Qual è il tuo livello di esperienza con il SUP?",
+      q_en: "What's your SUP experience level?",
+      opts: {
+        it: [
+          "Principiante (prime uscite)",
+          "Intermedio (esco regolarmente)",
+          "Avanzato (tecnica e lunghe distanze)"
+        ],
+        en: [
+          "Beginner (first outings)",
+          "Intermediate (regular sessions)",
+          "Advanced (technique & long distance)"
+        ]
+      }
     },
     {
-      id: "level",
-      q: t.q_level,
-      opts: [t.opt_level_beginner, t.opt_level_intermediate, t.opt_level_advanced]
+      id: "usage",
+      q: "Come utilizzerai principalmente la tavola?",
+      q_en: "How will you mainly use the board?",
+      opts: {
+        it: [
+          "Relax / escursioni brevi",
+          "Touring / lunghe distanze",
+          "Yoga / fitness",
+          "SUP con bambini/animali",
+          "Piccole onde (SUP surf)"
+        ],
+        en: [
+          "Relax / short cruising",
+          "Touring / long distance",
+          "Yoga / fitness",
+          "SUP with kids/pets",
+          "Small waves (SUP surf)"
+        ]
+      }
     },
     {
       id: "weight",
       q: t.q_weight,
-      opts: [t.opt_weight_1, t.opt_weight_2, t.opt_weight_3, t.opt_weight_4]
+      opts: {
+        it: ["< 75 kg", "75–95 kg", "> 95 kg"],
+        en: ["< 75 kg", "75–95 kg", "> 95 kg"]
+      }
+    },
+    {
+      id: "water",
+      q: "Dove la utilizzerai più spesso?",
+      q_en: "Where will you use it most often?",
+      opts: {
+        it: [
+          "Mare calmo",
+          "Lago",
+          "Fiumi o acqua mossa",
+          "Un po’ ovunque"
+        ],
+        en: [
+          "Calm sea",
+          "Lake",
+          "Rivers / choppy conditions",
+          "A bit everywhere"
+        ]
+      }
+    },
+    {
+      id: "priority",
+      q: "Qual è la tua priorità principale?",
+      q_en: "What is your main priority?",
+      opts: {
+        it: [
+          "Stabilità",
+          "Velocità e scorrevolezza",
+          "Maneggevolezza",
+          "Facilità di trasporto / peso leggero",
+          "Budget contenuto"
+        ],
+        en: [
+          "Stability",
+          "Speed & glide",
+          "Maneuverability",
+          "Lightweight / portability",
+          "Low budget"
+        ]
+      }
+    },
+    {
+      id: "budget",
+      q: "Quanto vuoi spendere?",
+      q_en: "What's your budget?",
+      opts: {
+        it: [
+          "< 200 €",
+          "200–300 €",
+          "300–500 €",
+          "Oltre 500 €"
+        ],
+        en: [
+          "< 200 €",
+          "200–300 €",
+          "300–500 €",
+          "Over 500 €"
+        ]
+      }
     }
   ],
 
-  match: (answers, products) => products.slice(0, 3),
+  match: (answers, products) => {
+  // Convertiamo peso in un numero indicativo
+  const weightMap = {
+    "< 75 kg": 70,
+    "75–95 kg": 85,
+    "> 95 kg": 100
+  };
+  const userWeight = weightMap[answers.weight];
+
+  // Budget massimo consentito
+  const budgetMap = {
+    "< 200 €": 200,
+    "200–300 €": 300,
+    "300–500 €": 500,
+    "Oltre 500 €": 2000
+  };
+  const maxPrice = budgetMap[answers.budget];
+
+  return products
+    .map(p => {
+      let score = 0;
+
+      // 🎯 USO
+      const usageTagMap = {
+        "Relax / escursioni brevi": "relax",
+        "Touring / lunghe distanze": "touring",
+        "Yoga / fitness": "yoga",
+        "SUP con bambini/animali": "family",
+        "Piccole onde (SUP surf)": "surf"
+      };
+      if (p.tags.includes(usageTagMap[answers.usage])) score += 3;
+
+      // ⚖️ PESO
+      if (p.weight_max >= userWeight) score += 3;
+      if (p.weight_min <= userWeight) score += 1;
+
+      // 🏆 PRIORITÀ
+      if (answers.priority === "Stabilità") score += p.stability;
+      if (answers.priority === "Velocità e scorrevolezza") score += p.speed;
+      if (answers.priority === "Maneggevolezza") score += p.handling;
+      if (answers.priority === "Facilità di trasporto / peso leggero") score += p.portability;
+      if (answers.priority === "Budget contenuto" && p.price <= 350) score += 4;
+
+      // 💶 BUDGET
+      if (p.price <= maxPrice) score += 4;
+
+      return { ...p, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+},
+
 
   defaultProducts: [
     {
@@ -161,9 +301,18 @@ const supModule = {
       youtube_review_url: "https://youtu.be/abc123",
       discount_code: "FANATIC10",
       discount_url: "https://shop.com/fanatic?coupon=FANATIC10"
+      tags: ["touring", "family", "relax", "surf", "yoga"],
+      weight_min: 60,
+      weight_max: 110,
+      stability: 1-5,
+      speed: 1-5,
+      handling: 1-5,
+      portability: 1-5,
+      price: 350
     }
   ]
 };
+
 
 const hydrofoilModule = {
   id: "hydrofoil",
