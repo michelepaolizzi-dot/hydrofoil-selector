@@ -297,24 +297,7 @@ const supModule = {
       price: 699,
       required_level: "principiante"
 
-    },
-        {
-      id: "sup1",
-      brand: "pesante",
-      model: "200 euro",
-      tags: ["touring"],
-      image_url: "https://via.placeholder.com/300?text=Fanatic+Ray+Air",
-      youtube_review_url: "https://youtu.be/abc123",
-      discount_code: "FANATIC10",
-      discount_url: "https://shop.com/fanatic?coupon=FANATIC10",
-
-      weight_min: 80,
-      weight_max: 110,
-      stability: 4,
-      speed: 4,
-      price: 200,
-      required_level: "Intermedio"
-    },
+    }
   ]
 };
 
@@ -457,12 +440,31 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
   const isResults = step === questions.length;
   const isFinal = step === questions.length + 1;
 
-  const products = module.defaultProducts;
-  const suggestions = isResults ? module.match(answers, products) : [];
+const [products, setProducts] = useState(module.defaultProducts);
+  const [loading, setLoading] = useState(false);
+
+useEffect(() => {
+    if (!module.productsUrl) return;
+    setLoading(true);
+
+    fetch(module.productsUrl)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setProducts(data);
+        else setProducts(module.defaultProducts);
+      })
+      .catch(() => setProducts(module.defaultProducts))
+      .finally(() => setLoading(false));
+  }, [module]);
+const suggestions = isResults ? module.match(answers, products) : [];
 
   return (
     <div>
-      {/* Progress */}
+      {loading && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex justify-center items-center z-50 text-xl font-bold text-sky-600">
+          Caricamento prodotti...
+        </div>
+      )}}
       <header className="sticky top-0 bg-white px-4 py-4 shadow z-50 flex justify-between items-center">
         <button
           onClick={onBackToCategories}
