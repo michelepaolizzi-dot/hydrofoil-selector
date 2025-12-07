@@ -399,7 +399,7 @@ const pumpsModule = {
 const MODULES = [
   {
     ...supModule,
-    image: "https://media.adeo.com/mkp/52efae964714afffb04eac8a5f8b7d21/media.jpeg"
+    image: "https://kite-prod.b-cdn.net/25819-thickbox_default/jp-allroundair-sl-10-6-inflatable-sup-package.jpg"
   },
   {
     ...hydrofoilModule,
