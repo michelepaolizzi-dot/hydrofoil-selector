@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe2, MessageCircle } from "lucide-react";
 
-
 const appFont =
   'system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Roboto, Arial, sans-serif';
 
@@ -118,16 +117,9 @@ const I18N = {
 // 2️⃣ MODULI QUIZ — DOMANDE + MATCHING + PRODOTTI DEFAULT
 // =============================================================
 
-// Tutti i prodotti ora hanno:
-// - image_url
-// - discount_code
-// - discount_url
-// - youtube_review_url
-
-
 const supModule = {
   id: "sup",
-  productsUrl: "https://raw.githubusercontent.com/michelepaolizzi-dot/products-selector/main/products-sup.json", // 🔗 URL JSON SUP
+  productsUrl: "https://raw.githubusercontent.com/michelepaolizzi-dot/products-selector/main/products-sup.json",
   getLabel: t => t.category_sup,
 
   getQuestions: t => [
@@ -138,16 +130,8 @@ const supModule = {
         en: "What's your SUP experience level?"
       },
       opts: {
-        it: [
-          "Principiante (prime uscite)",
-          "Intermedio (esco regolarmente)",
-          "Avanzato (tecnica e lunghe distanze)"
-        ],
-        en: [
-          "Beginner (first outings)",
-          "Intermediate (regular sessions)",
-          "Advanced (technique & long distance)"
-        ]
+        it: ["Principiante", "Intermedio", "Avanzato"],
+        en: ["Beginner", "Intermediate", "Advanced"]
       }
     },
     {
@@ -174,14 +158,14 @@ const supModule = {
       }
     },
     {
-      id: "weight",
+      id: "sup_type",
       q: {
-        it: "Qual è il tuo peso complessivo (incluso eventuale carico)?",
-        en: "Total weight including gear?"
+        it: "Che tipo di SUP stai cercando?",
+        en: "What type of SUP are you looking for?"
       },
       opts: {
-        it: ["< 75 kg", "75–95 kg", "> 95 kg"],
-        en: ["< 75 kg", "75–95 kg", "> 95 kg"]
+        it: ["Gonfiabile", "Rigido", "Non ho idea"],
+        en: ["Inflatable", "Rigid", "No idea"]
       }
     },
     {
@@ -220,13 +204,6 @@ const supModule = {
   ],
 
   match: (answers, products) => {
-    const weightMap = {
-      "< 75 kg": 70,
-      "75–95 kg": 85,
-      "> 95 kg": 100
-    };
-    const userWeight = weightMap[answers.weight];
-
     const budgetMap = {
       "< 200 €": 200,
       "200–300 €": 300,
@@ -240,44 +217,42 @@ const supModule = {
         let score = 0;
 
         const usageTagMap = {
-          "Relax / escursioni brevi": "allround",
+          "Relax / escursioni brevi": "relax",
           "Touring / lunghe distanze": "touring",
           "Yoga / fitness": "yoga",
-          "SUP con bambini/animali": "allround",
+          "SUP con bambini/animali": "family",
           "Piccole onde (SUP surf)": "surf"
         };
-        if (p.tags.includes(usageTagMap[answers.usage])) score += 3;
+        if (answers.usage && p.tags?.includes(usageTagMap[answers.usage])) {
+          score += 3;
+        }
 
-        if (p.weight_max >= userWeight) score += 0;
-        if (p.weight_min <= userWeight) score += 0;
-
-       // 🏆 PRIORITÀ
-        if (answers.priority === "Stabilità") score += p.stability;
-        if (answers.priority === "Velocità e scorrevolezza") score += p.speed;
+        // 🏆 PRIORITÀ
+        if (answers.priority === "Stabilità") score += p.stability || 0;
+        if (answers.priority === "Velocità e scorrevolezza") score += p.speed || 0;
         if (answers.priority === "Prezzo basso" && p.price <= 350) score += 4;
 
-        // 🎓 Livello richiesto
-        if (p.required_level === answers.level) {
-          score += 5; // match perfetto
+        // 🎓 Livello richiesto (case insensitive)
+        if (p.required_level && answers.level &&
+            p.required_level.toLowerCase() === answers.level.toLowerCase()) {
+          score += 4;
         } else if (
           (p.required_level === "Intermedio" && answers.level === "Avanzato") ||
           (p.required_level === "Principiante" && answers.level !== "Avanzato")
         ) {
-          score += 2; // match accettabile
+          score += 2;
         } else {
-          score -= 5; // troppo avanzato per l'utente
+          score -= 5;
         }
 
         // 💶 BUDGET
-        if (p.price <= maxPrice) score += 5;
-
+        if (p.price <= maxPrice) score += 4;
 
         return { ...p, score };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
   },
-
 
   defaultProducts: [
     {
@@ -289,19 +264,15 @@ const supModule = {
       youtube_review_url: "https://youtu.be/abc123",
       discount_code: "FANATIC10",
       discount_url: "https://shop.com/fanatic?coupon=FANATIC10",
-
       weight_min: 60,
       weight_max: 110,
       stability: 4,
       speed: 4,
       price: 699,
       required_level: "principiante"
-
     }
   ]
 };
-
-
 
 const hydrofoilModule = {
   id: "hydrofoil",
@@ -399,7 +370,7 @@ const pumpsModule = {
 const MODULES = [
   {
     ...supModule,
-    image: "https://kite-prod.b-cdn.net/25819-thickbox_default/jp-allroundair-sl-10-6-inflatable-sup-package.jpg"
+    image: "https://media.adeo.com/mkp/52efae964714afffb04eac8a5f8b7d21/media.jpeg"
   },
   {
     ...hydrofoilModule,
@@ -440,10 +411,10 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
   const isResults = step === questions.length;
   const isFinal = step === questions.length + 1;
 
-const [products, setProducts] = useState(module.defaultProducts);
+  const [products, setProducts] = useState(module.defaultProducts);
   const [loading, setLoading] = useState(false);
 
-useEffect(() => {
+  useEffect(() => {
     if (!module.productsUrl) return;
     setLoading(true);
 
@@ -456,7 +427,8 @@ useEffect(() => {
       .catch(() => setProducts(module.defaultProducts))
       .finally(() => setLoading(false));
   }, [module]);
-const suggestions = isResults ? module.match(answers, products) : [];
+
+  const suggestions = isResults ? module.match(answers, products) : [];
 
   return (
     <div>
@@ -494,8 +466,8 @@ const suggestions = isResults ? module.match(answers, products) : [];
           return (
             <>
               <h2 className="text-3xl font-black mb-6">
-  {q.q[lang] || q.q.it}
-</h2>
+                {q.q?.[lang] || q.q?.it || q.q}
+              </h2>
 
               <div className="flex flex-col gap-4">
                 {opts.map(opt => (
@@ -542,32 +514,29 @@ const suggestions = isResults ? module.match(answers, products) : [];
                         {p.brand} {p.model}
                       </div>
 
-            {/* TAGS / USO PRINCIPALE */}
-            {p.tags && (
-              <div className="text-lg text-slate-500 mt-1">
-                {p.tags.join(", ")}
-              </div>
-            )}
+                      {/* TAGS / USO PRINCIPALE */}
+                      {p.tags && (
+                        <div className="text-lg text-slate-500 mt-1">
+                          {p.tags.join(", ")}
+                        </div>
+                      )}
 
-            {/* Parametri consigliati */}
-            <div className="mt-3 text-sm text-slate-600 space-y-1">
-              {"stability" in p && (
-                <div>🛶 Stabilità: <strong>{p.stability}/5</strong></div>
-              )}
-              {"speed" in p && (
-                <div>⚡ Velocità e scorrevolezza: <strong>{p.speed}/5</strong></div>
-              )}
-              {"price" in p && (
-                <div>💶 Prezzo indicativo: <strong>{p.price} €</strong></div>
-              )}
-            </div>
+                      {/* Parametri consigliati */}
+                      <div className="mt-3 text-sm text-slate-600 space-y-1">
+                        {"stability" in p && (
+                          <div>🛶 Stabilità: <strong>{p.stability}/5</strong></div>
+                        )}
+                        {"speed" in p && (
+                          <div>⚡ Velocità e scorrevolezza: <strong>{p.speed}/5</strong></div>
+                        )}
+                        {"price" in p && (
+                          <div>💶 Prezzo indicativo: <strong>{p.price} €</strong></div>
+                        )}
+                      </div>
 
-
-            {"required_level" in p && (
-  <div>🎓 Livello consigliato: <strong>{p.required_level}</strong></div>
-)}
-
-
+                      {"required_level" in p && (
+                        <div>🎓 Livello consigliato: <strong>{p.required_level}</strong></div>
+                      )}
 
                       {/* ⭐ Testato sul canale */}
                       {p.youtube_review_url && (
@@ -662,7 +631,8 @@ export default function ProductAdvisorApp() {
   const activeModule = MODULES.find(m => m.id === activeModuleId) || null;
 
   // ⚠️ Sostituisci questo URL con il TUO link WhatsApp:
-  const whatsappLink = "https://wa.me/393331234567?text=Ciao%20Michele,%20ho%20una%20domanda%20sui%20prodotti%20del%20sito";
+  const whatsappLink =
+    "https://wa.me/393331234567?text=Ciao%20Michele,%20ho%20una%20domanda%20sui%20prodotti%20del%20sito";
 
   return (
     <div
