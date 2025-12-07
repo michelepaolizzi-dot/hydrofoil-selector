@@ -240,16 +240,16 @@ const supModule = {
         let score = 0;
 
         const usageTagMap = {
-          "Relax / escursioni brevi": "relax",
+          "Relax / escursioni brevi": "allround",
           "Touring / lunghe distanze": "touring",
           "Yoga / fitness": "yoga",
-          "SUP con bambini/animali": "family",
+          "SUP con bambini/animali": "allround",
           "Piccole onde (SUP surf)": "surf"
         };
         if (p.tags.includes(usageTagMap[answers.usage])) score += 3;
 
-        if (p.weight_max >= userWeight) score += 3;
-        if (p.weight_min <= userWeight) score += 1;
+        if (p.weight_max >= userWeight) score += 0;
+        if (p.weight_min <= userWeight) score += 0;
 
        // 🏆 PRIORITÀ
         if (answers.priority === "Stabilità") score += p.stability;
@@ -258,7 +258,7 @@ const supModule = {
 
         // 🎓 Livello richiesto
         if (p.required_level === answers.level) {
-          score += 4; // match perfetto
+          score += 5; // match perfetto
         } else if (
           (p.required_level === "Intermedio" && answers.level === "Avanzato") ||
           (p.required_level === "Principiante" && answers.level !== "Avanzato")
@@ -269,7 +269,7 @@ const supModule = {
         }
 
         // 💶 BUDGET
-        if (p.price <= maxPrice) score += 4;
+        if (p.price <= maxPrice) score += 5;
 
 
         return { ...p, score };

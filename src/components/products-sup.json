@@ -31,4 +31,20 @@
     "required_level": "Principiante",
     "price": 579
   }
+    {
+    "id": "sup3",
+    "brand": "thurso",
+    "model": "waterwalker\"",
+    "image_url": "https://via.placeholder.com/300?text=Gladiator+Pro+12.6",
+    "youtube_review_url": "https://youtu.be/def456",
+    "discount_code": "GLADIATOR10",
+    "discount_url": "https://shop.com/gladiator?coupon=GLADIATOR10",
+    "tags": ["touring", "family"],
+    "weight_min": 65,
+    "weight_max": 120,
+    "stability": 5,
+    "speed": 3,
+    "required_level": "Principiante",
+    "price": 579
+  }
 ]
