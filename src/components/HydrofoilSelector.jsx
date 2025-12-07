@@ -127,7 +127,7 @@ const I18N = {
 
 const supModule = {
   id: "sup",
-  productsUrl: "https://github.com/michelepaolizzi-dot/products-selector/blob/main/products-sup.json", // 🔗 URL JSON SUP
+  productsUrl: "https://raw.githubusercontent.com/michelepaolizzi-dot/products-selector/main/products-sup.json", // 🔗 URL JSON SUP
   getLabel: t => t.category_sup,
 
   getQuestions: t => [
