@@ -127,7 +127,7 @@ const I18N = {
 
 const supModule = {
   id: "sup",
-  productsUrl: "https://tuosito.it/data/sup-products.json", // 🔗 URL JSON SUP
+  productsUrl: "https://www.sportalcentro.it/wp-content/uploads/products_selector/products-sup.json", // 🔗 URL JSON SUP
   getLabel: t => t.category_sup,
 
   getQuestions: t => [
