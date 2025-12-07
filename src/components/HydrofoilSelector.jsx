@@ -225,7 +225,7 @@ const supModule = {
           "Piccole onde (SUP surf)": "surf",
         };
         if (answers.usage && p.tags?.includes(usageTagMap[answers.usage])) {
-          score += 3;
+          score += 5;
         }
 
         // 🎓 Livello richiesto (case insensitive, solo se entrambi presenti)
