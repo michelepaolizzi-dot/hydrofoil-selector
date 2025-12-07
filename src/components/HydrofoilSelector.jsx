@@ -218,10 +218,10 @@ const supModule = {
         let score = 0;
 
         const usageTagMap = {
-          "Relax / escursioni brevi": "relax",
+          "Relax / escursioni brevi": "allround",
           "Touring / lunghe distanze": "touring",
           "Yoga / fitness": "yoga",
-          "SUP con bambini/animali": "family",
+          "SUP con bambini/animali": "allround",
           "Piccole onde (SUP surf)": "surf",
         };
         if (answers.usage && p.tags?.includes(usageTagMap[answers.usage])) {
