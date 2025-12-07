@@ -119,26 +119,27 @@ const I18N = {
 
 const supModule = {
   id: "sup",
-  productsUrl: "https://raw.githubusercontent.com/michelepaolizzi-dot/products-selector/main/products-sup.json",
-  getLabel: t => t.category_sup,
+  productsUrl:
+    "https://raw.githubusercontent.com/michelepaolizzi-dot/products-selector/main/products-sup.json",
+  getLabel: (t) => t.category_sup,
 
-  getQuestions: t => [
+  getQuestions: (t) => [
     {
       id: "level",
       q: {
         it: "Qual è il tuo livello di esperienza con il SUP?",
-        en: "What's your SUP experience level?"
+        en: "What's your SUP experience level?",
       },
       opts: {
         it: ["Principiante", "Intermedio", "Avanzato"],
-        en: ["Beginner", "Intermediate", "Advanced"]
-      }
+        en: ["Beginner", "Intermediate", "Advanced"],
+      },
     },
     {
       id: "usage",
       q: {
         it: "Come utilizzerai principalmente la tavola?",
-        en: "How will you mainly use the board?"
+        en: "How will you mainly use the board?",
       },
       opts: {
         it: [
@@ -146,61 +147,50 @@ const supModule = {
           "Touring / lunghe distanze",
           "Yoga / fitness",
           "SUP con bambini/animali",
-          "Piccole onde (SUP surf)"
+          "Piccole onde (SUP surf)",
         ],
         en: [
           "Relax / short cruising",
           "Touring / long distance",
           "Yoga / fitness",
           "SUP with kids/pets",
-          "Small waves (SUP surf)"
-        ]
-      }
+          "Small waves (SUP surf)",
+        ],
+      },
     },
     {
       id: "sup_type",
       q: {
         it: "Che tipo di SUP stai cercando?",
-        en: "What type of SUP are you looking for?"
+        en: "What type of SUP are you looking for?",
       },
       opts: {
         it: ["Gonfiabile", "Rigido", "Non ho idea"],
-        en: ["Inflatable", "Rigid", "No idea"]
-      }
+        en: ["Inflatable", "Rigid", "No idea"],
+      },
     },
     {
       id: "water",
       q: {
         it: "Dove la utilizzerai più spesso?",
-        en: "Where will you use it most?"
+        en: "Where will you use it most?",
       },
       opts: {
         it: ["Mare calmo", "Lago", "Fiumi o acqua mossa", "Un po’ ovunque"],
-        en: ["Calm sea", "Lake", "Rivers / choppy", "Everywhere"]
-      }
-    },
-    {
-      id: "priority",
-      q: {
-        it: "Qual è la tua priorità principale?",
-        en: "Main priority?"
+        en: ["Calm sea", "Lake", "Rivers / choppy", "Everywhere"],
       },
-      opts: {
-        it: ["Stabilità", "Velocità e scorrevolezza", "Prezzo basso"],
-        en: ["Stability", "Speed", "Low price"]
-      }
     },
     {
       id: "budget",
       q: {
         it: "Quanto vuoi spendere?",
-        en: "What's your budget?"
+        en: "What's your budget?",
       },
       opts: {
         it: ["< 200 €", "200–300 €", "300–500 €", "Oltre 500 €"],
-        en: ["< 200 €", "200–300 €", "300–500 €", "Over 500 €"]
-      }
-    }
+        en: ["< 200 €", "200–300 €", "300–500 €", "Over 500 €"],
+      },
+    },
   ],
 
   match: (answers, products) => {
@@ -208,12 +198,12 @@ const supModule = {
       "< 200 €": 200,
       "200–300 €": 300,
       "300–500 €": 500,
-      "Oltre 500 €": 2000
+      "Oltre 500 €": 2000,
     };
     const maxPrice = budgetMap[answers.budget];
 
     return products
-      .map(p => {
+      .map((p) => {
         let score = 0;
 
         const usageTagMap = {
@@ -221,24 +211,27 @@ const supModule = {
           "Touring / lunghe distanze": "touring",
           "Yoga / fitness": "yoga",
           "SUP con bambini/animali": "family",
-          "Piccole onde (SUP surf)": "surf"
+          "Piccole onde (SUP surf)": "surf",
         };
         if (answers.usage && p.tags?.includes(usageTagMap[answers.usage])) {
           score += 3;
         }
 
-        // 🏆 PRIORITÀ
-        if (answers.priority === "Stabilità") score += p.stability || 0;
-        if (answers.priority === "Velocità e scorrevolezza") score += p.speed || 0;
-        if (answers.priority === "Prezzo basso" && p.price <= 350) score += 4;
-
-        // 🎓 Livello richiesto (case insensitive)
-        if (p.required_level && answers.level &&
-            p.required_level.toLowerCase() === answers.level.toLowerCase()) {
+        // 🎓 Livello richiesto (case insensitive, solo se entrambi presenti)
+        if (
+          p.required_level &&
+          answers.level &&
+          p.required_level.toLowerCase() === answers.level.toLowerCase()
+        ) {
           score += 4;
         } else if (
-          (p.required_level === "Intermedio" && answers.level === "Avanzato") ||
-          (p.required_level === "Principiante" && answers.level !== "Avanzato")
+          p.required_level === "Intermedio" &&
+          answers.level === "Avanzato"
+        ) {
+          score += 2;
+        } else if (
+          p.required_level === "Principiante" &&
+          answers.level !== "Avanzato"
         ) {
           score += 2;
         } else {
@@ -269,10 +262,11 @@ const supModule = {
       stability: 4,
       speed: 4,
       price: 699,
-      required_level: "principiante"
-    }
-  ]
+      required_level: "Principiante",
+    },
+  ],
 };
+
 
 const hydrofoilModule = {
   id: "hydrofoil",
@@ -370,7 +364,7 @@ const pumpsModule = {
 const MODULES = [
   {
     ...supModule,
-    image: "https://media.adeo.com/mkp/52efae964714afffb04eac8a5f8b7d21/media.jpeg"
+    image: "https://kite-prod.b-cdn.net/25834-thickbox_default/jp-cruisair-sl-12-6-inflatable-sup-package.jpg"
   },
   {
     ...hydrofoilModule,
