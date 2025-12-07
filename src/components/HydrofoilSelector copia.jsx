@@ -124,10 +124,10 @@ const I18N = {
 // - discount_url
 // - youtube_review_url
 
-
 const supModule = {
   id: "sup",
-  productsUrl: "https://tuosito.it/data/sup-products.json", // 🔗 URL JSON SUP
+  productsUrl: null,
+
   getLabel: t => t.category_sup,
 
   getQuestions: t => [
