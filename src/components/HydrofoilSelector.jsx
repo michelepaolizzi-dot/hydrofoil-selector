@@ -124,6 +124,17 @@ const supModule = {
   getLabel: (t) => t.category_sup,
 
   getQuestions: (t) => [
+       {
+      id: "sup_type",
+      q: {
+        it: "Che tipo di SUP stai cercando?",
+        en: "What type of SUP are you looking for?",
+      },
+      opts: {
+        it: ["Gonfiabile", "Rigido", "Non ho idea"],
+        en: ["Inflatable", "Rigid", "No idea"],
+      },
+    },
     {
       id: "level",
       q: {
@@ -158,17 +169,17 @@ const supModule = {
         ],
       },
     },
-    {
-      id: "sup_type",
-      q: {
-        it: "Che tipo di SUP stai cercando?",
-        en: "What type of SUP are you looking for?",
-      },
-      opts: {
-        it: ["Gonfiabile", "Rigido", "Non ho idea"],
-        en: ["Inflatable", "Rigid", "No idea"],
-      },
+      {
+    id: "height",
+    q: {
+      it: "Quanto sei alto/a?",
+      en: "How tall are you?",
     },
+    opts: {
+      it: ["<160 cm", "160-175 cm", "175-190 cm", ">190 cm"],
+      en: ["<160 cm", "160-175 cm", "175-190 cm", ">190 cm"],
+    },
+  },
     {
       id: "water",
       q: {
@@ -241,6 +252,16 @@ const supModule = {
         // 💶 BUDGET
         if (p.price <= maxPrice) score += 4;
 
+        const heightTagMap = {
+  "<160 cm": "short",
+  "160-175 cm": "medium",
+  "175-190 cm": "tall",
+  ">190 cm": "x-tall",
+};
+
+if (answers.height && p.recommended_height?.includes(heightTagMap[answers.height])) {
+  score += 3;
+}
         return { ...p, score };
       })
       .sort((a, b) => b.score - a.score)
@@ -263,6 +284,7 @@ const supModule = {
       speed: 4,
       price: 699,
       required_level: "Principiante",
+      recommended_height: ["medium", "tall"],
     },
   ],
 };
@@ -529,7 +551,7 @@ function QuizEngine({ module, lang, t, onBackToCategories }) {
                       </div>
 
                       {"required_level" in p && (
-                        <div>🎓 Livello consigliato: <strong>{p.required_level}</strong></div>
+                        <div>🎓 Livello minimo richiesto: <strong>{p.required_level}</strong></div>
                       )}
 
                       {/* ⭐ Testato sul canale */}
