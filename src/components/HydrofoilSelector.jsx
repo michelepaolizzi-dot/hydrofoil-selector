@@ -127,7 +127,7 @@ const I18N = {
 
 const supModule = {
   id: "sup",
-  productsUrl: "https://www.sportalcentro.it/wp-content/uploads/products_selector/products-sup.json", // 🔗 URL JSON SUP
+  productsUrl: "https://github.com/michelepaolizzi-dot/products-selector/blob/main/products-sup.json", // 🔗 URL JSON SUP
   getLabel: t => t.category_sup,
 
   getQuestions: t => [
@@ -464,7 +464,7 @@ const suggestions = isResults ? module.match(answers, products) : [];
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex justify-center items-center z-50 text-xl font-bold text-sky-600">
           Caricamento prodotti...
         </div>
-      )}}
+      )}
       <header className="sticky top-0 bg-white px-4 py-4 shadow z-50 flex justify-between items-center">
         <button
           onClick={onBackToCategories}

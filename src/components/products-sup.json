@@ -1,0 +1,34 @@
+[
+  {
+    "id": "sup1",
+    "brand": "Fanatic",
+    "model": "Ray Air",
+    "image_url": "https://via.placeholder.com/300?text=Fanatic+Ray+Air",
+    "youtube_review_url": "https://youtu.be/abc123",
+    "discount_code": "FANATIC10",
+    "discount_url": "https://shop.com/fanatic?coupon=FANATIC10",
+    "tags": ["touring"],
+    "weight_min": 60,
+    "weight_max": 110,
+    "stability": 4,
+    "speed": 4,
+    "required_level": "Intermedio",
+    "price": 699
+  },
+  {
+    "id": "sup2",
+    "brand": "Gladiator",
+    "model": "Pro 12’6\"",
+    "image_url": "https://via.placeholder.com/300?text=Gladiator+Pro+12.6",
+    "youtube_review_url": "https://youtu.be/def456",
+    "discount_code": "GLADIATOR10",
+    "discount_url": "https://shop.com/gladiator?coupon=GLADIATOR10",
+    "tags": ["touring", "family"],
+    "weight_min": 65,
+    "weight_max": 120,
+    "stability": 5,
+    "speed": 3,
+    "required_level": "Principiante",
+    "price": 579
+  }
+]
